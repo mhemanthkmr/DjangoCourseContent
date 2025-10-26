@@ -1,0 +1,1094 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Week 2: Django URLs, Views, and Templates</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif;
+        }
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #7209b7;
+            --accent: #4cc9f0;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --light-gray: #e9ecef;
+            --success: #4ade80;
+            --warning: #facc15;
+            --card-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            --border-radius: 16px;
+            --transition: all 0.3s ease;
+        }
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4edf9 100%);
+            color: var(--dark);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .slideshow-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            background: white;
+            height: 85vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .slide {
+            display: none;
+            padding: 50px;
+            flex: 1;
+            overflow-y: auto;
+        }
+        .slide.active {
+            display: block;
+            animation: slideIn 0.5s ease-out;
+        }
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .slide-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 40px;
+            padding-bottom: 25px;
+            border-bottom: 2px solid var(--light-gray);
+        }
+        .slide-number {
+            background: var(--primary);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-right: 20px;
+            flex-shrink: 0;
+        }
+        .slide-title {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin: 0;
+        }
+        .content-section {
+            margin-bottom: 30px;
+        }
+        .content-section h3 {
+            font-size: 1.6rem;
+            margin-bottom: 20px;
+            color: var(--primary-dark);
+            display: flex;
+            align-items: center;
+        }
+        .content-section h3 i {
+            margin-right: 12px;
+            color: var(--primary);
+        }
+        .content-section p {
+            margin-bottom: 15px;
+            color: var(--dark);
+            font-size: 1.15rem;
+            line-height: 1.7;
+        }
+        .code-container {
+            position: relative;
+            margin: 25px 0;
+        }
+        .code-block {
+            background: #1e1e2e;
+            color: #e0e0e0;
+            padding: 25px;
+            border-radius: 14px;
+            font-family: 'Fira Code', 'Consolas', monospace;
+            font-size: 1.1rem;
+            overflow-x: auto;
+            line-height: 1.6;
+            border-left: 4px solid var(--accent);
+            margin: 0;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 14px;
+            transition: var(--transition);
+            z-index: 10;
+        }
+        .copy-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+        .copy-btn.copied {
+            background: var(--success);
+        }
+        .highlight {
+            background: rgba(67, 97, 238, 0.15);
+            color: var(--primary-dark);
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-weight: 600;
+            font-family: 'Fira Code', monospace;
+            font-size: 1.05rem;
+        }
+        .relationship-diagram {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 35px 0;
+            flex-wrap: wrap;
+            gap: 30px;
+        }
+        .entity {
+            background: white;
+            border: 2px solid var(--primary);
+            border-radius: 14px;
+            padding: 25px;
+            min-width: 220px;
+            text-align: center;
+            box-shadow: 0 6px 16px rgba(67, 97, 238, 0.15);
+        }
+        .entity h4 {
+            color: var(--primary-dark);
+            margin-bottom: 18px;
+            font-size: 1.4rem;
+            font-weight: 600;
+        }
+        .entity p {
+            color: var(--gray);
+            font-size: 1.05rem;
+            margin: 6px 0;
+            line-height: 1.5;
+        }
+        .arrow {
+            font-size: 2.5rem;
+            color: var(--success);
+            margin: 0 25px;
+        }
+        .lab-section {
+            background: linear-gradient(135deg, rgba(67, 97, 238, 0.1) 0%, rgba(114, 9, 183, 0.1) 100%);
+            border-radius: 14px;
+            padding: 30px;
+            margin-top: 30px;
+            border-left: 4px solid var(--secondary);
+        }
+        .lab-section h3 {
+            color: var(--secondary);
+            margin-bottom: 20px;
+            font-size: 1.6rem;
+        }
+        .steps-list {
+            padding-left: 30px;
+        }
+        .steps-list li {
+            margin-bottom: 12px;
+            color: var(--dark);
+            font-size: 1.15rem;
+            line-height: 1.6;
+        }
+        /* Custom list styling with single blue dot */
+        .custom-list {
+            padding-left: 20px;
+            margin: 20px 0;
+            list-style: none;
+        }
+        .custom-list li {
+            position: relative;
+            padding-left: 25px;
+            margin-bottom: 12px;
+            color: var(--dark);
+            font-size: 1.15rem;
+            line-height: 1.6;
+        }
+        .custom-list li:before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: var(--primary);
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        /* Important Notes section */
+        .important-notes {
+            background: #f8f9fa;
+            border-left: 4px solid var(--warning);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 25px 0;
+        }
+        .important-notes h4 {
+            color: var(--warning);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            font-size: 1.3rem;
+        }
+        .important-notes h4 i {
+            margin-right: 10px;
+        }
+        .important-notes ul {
+            padding-left: 20px;
+            margin: 10px 0;
+        }
+        .important-notes li {
+            position: relative;
+            padding-left: 25px;
+            margin-bottom: 10px;
+            color: var(--dark);
+            font-size: 1.1rem;
+            line-height: 1.6;
+            list-style: none;
+        }
+        .important-notes li:before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: var(--warning);
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        .important-notes li code {
+            background: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.95rem;
+        }
+        /* Navigation */
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 25px 50px;
+            background: var(--light);
+            border-top: 1px solid var(--light-gray);
+        }
+        .nav-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 22px;
+            transition: var(--transition);
+            box-shadow: 0 6px 15px rgba(67, 97, 238, 0.4);
+        }
+        .nav-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-3px);
+        }
+        .nav-btn:disabled {
+            background: var(--light-gray);
+            color: var(--gray);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        .slide-counter {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--gray);
+        }
+        /* Fullscreen button */
+        .fullscreen-btn {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 20px;
+            transition: var(--transition);
+            box-shadow: 0 6px 15px rgba(114, 9, 183, 0.4);
+            margin-left: 15px;
+        }
+        .fullscreen-btn:hover {
+            background: #5a0799;
+            transform: translateY(-3px);
+        }
+        /* Title slide */
+        .title-slide {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            height: 100%;
+            padding: 60px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+        }
+        .title-slide h1 {
+            font-size: 3.5rem;
+            margin-bottom: 25px;
+            font-weight: 800;
+            text-shadow: 0 3px 15px rgba(0,0,0,0.25);
+        }
+        .title-slide .subtitle {
+            font-size: 1.8rem;
+            font-weight: 300;
+            max-width: 900px;
+            line-height: 1.6;
+            opacity: 0.95;
+        }
+        /* Progress bar */
+        .progress-container {
+            height: 8px;
+            background: var(--light-gray);
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 10;
+        }
+        .progress-bar {
+            height: 100%;
+            background: var(--primary);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+        /* Fullscreen styles */
+        .fullscreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1000;
+            border-radius: 0;
+            margin: 0;
+            padding: 0;
+            box-shadow: none;
+        }
+        .fullscreen .navigation {
+            padding: 25px 40px;
+        }
+        /* Responsive design */
+        @media (max-width: 1200px) {
+            .slideshow-container {
+                max-width: 1000px;
+            }
+            .slide {
+                padding: 40px;
+            }
+            .slide-title {
+                font-size: 2.0rem;
+            }
+            .title-slide h1 {
+                font-size: 3.0rem;
+            }
+            .title-slide .subtitle {
+                font-size: 1.6rem;
+            }
+        }
+        @media (max-width: 992px) {
+            .slideshow-container {
+                max-width: 800px;
+                height: 88vh;
+            }
+            .slide {
+                padding: 35px;
+            }
+            .slide-header {
+                margin-bottom: 30px;
+            }
+            .slide-title {
+                font-size: 1.8rem;
+            }
+            .title-slide h1 {
+                font-size: 2.6rem;
+            }
+            .title-slide .subtitle {
+                font-size: 1.4rem;
+            }
+            .code-block {
+                font-size: 1.0rem;
+                padding: 20px;
+            }
+            .copy-btn {
+                top: 12px;
+                right: 12px;
+                width: 32px;
+                height: 32px;
+                font-size: 12px;
+            }
+            .important-notes {
+                padding: 15px;
+            }
+            .important-notes h4 {
+                font-size: 1.2rem;
+            }
+            .important-notes li {
+                font-size: 1.0rem;
+            }
+        }
+        @media (max-width: 768px) {
+            .slideshow-container {
+                height: 90vh;
+                margin: 10px;
+            }
+            .slide {
+                padding: 25px;
+            }
+            .slide-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .slide-number {
+                margin-bottom: 15px;
+                width: 40px;
+                height: 40px;
+                font-size: 1rem;
+            }
+            .slide-title {
+                font-size: 1.5rem;
+            }
+            .title-slide h1 {
+                font-size: 2.2rem;
+            }
+            .title-slide .subtitle {
+                font-size: 1.2rem;
+            }
+            .navigation {
+                padding: 20px 30px;
+            }
+            .nav-btn, .fullscreen-btn {
+                width: 45px;
+                height: 45px;
+                font-size: 18px;
+            }
+            .slide-counter {
+                font-size: 1.1rem;
+            }
+            .code-block {
+                padding: 18px;
+            }
+            .copy-btn {
+                top: 10px;
+                right: 10px;
+                width: 30px;
+                height: 30px;
+                font-size: 11px;
+            }
+            .custom-list li {
+                font-size: 1.1rem;
+            }
+        }
+        @media (max-width: 480px) {
+            .title-slide h1 {
+                font-size: 1.9rem;
+            }
+            .title-slide .subtitle {
+                font-size: 1.05rem;
+            }
+            .slide-title {
+                font-size: 1.4rem;
+            }
+            .code-block {
+                padding: 15px;
+                font-size: 0.9rem;
+            }
+            .content-section h3 {
+                font-size: 1.3rem;
+            }
+            .navigation {
+                flex-direction: column;
+                gap: 15px;
+            }
+            .slide-counter {
+                order: -1;
+            }
+            .copy-btn {
+                top: 8px;
+                right: 8px;
+                width: 28px;
+                height: 28px;
+                font-size: 10px;
+            }
+            .important-notes {
+                padding: 12px;
+            }
+            .important-notes h4 {
+                font-size: 1.1rem;
+            }
+            .important-notes li {
+                font-size: 0.95rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slideshow-container" id="slideshowContainer">
+        <!-- Progress bar -->
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+        <!-- Title Slide -->
+        <div class="slide active" data-slide="0">
+            <div class="title-slide">
+                <h1>Week 2: Django URLs, Views, and Templates</h1>
+                <div class="subtitle">Building dynamic web pages with Django’s request-response cycle</div>
+            </div>
+        </div>
+        <!-- Slide 1: URL Routing with path() and re_path() -->
+        <div class="slide" data-slide="1">
+            <div class="slide-header">
+                <div class="slide-number">1</div>
+                <h2 class="slide-title">URL Routing with path() and re_path()</h2>
+            </div>
+            <div class="content-section">
+                <p>Django uses a URL dispatcher to map URLs to views. This is defined in <span class="highlight">urls.py</span> files.</p>
+                <h3><i class="fas fa-route"></i> path() – Simple & Readable</h3>
+                <p>Uses path converters for common patterns (e.g., <span class="highlight">int</span>, <span class="highlight">str</span>, <span class="highlight">slug</span>).</p>
+                <div class="code-container">
+                    <pre class="code-block" id="code1"># myapp/urls.py
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('', views.home, name='home'),
+    path('about/', views.about, name='about'),
+    path('post/<int:post_id>/', views.post_detail, name='post_detail'),
+    path('user/<str:username>/', views.profile, name='profile'),
+]</pre>
+                    <button class="copy-btn" onclick="copyCode('code1')">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+                <h3><i class="fas fa-regex"></i> re_path() – For Complex Patterns</h3>
+                <p>Uses regular expressions when path converters aren’t sufficient.</p>
+                <div class="code-container">
+                    <pre class="code-block" id="code2">from django.urls import re_path
+
+urlpatterns = [
+    re_path(r'^archive/(?P<year>[0-9]{4})/$', views.year_archive),
+]</pre>
+                    <button class="copy-btn" onclick="copyCode('code2')">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+                <div class="important-notes">
+                    <h4><i class="fas fa-exclamation-triangle"></i> Best Practice:</h4>
+                    <ul>
+                        <li>Prefer <code>path()</code> over <code>re_path()</code> for readability</li>
+                        <li>Always use the <code>name</code> parameter for reverse URL lookups</li>
+                        <li>Include app URLs in the main project using <code>include()</code></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <!-- Slide 2: Function-Based Views (FBVs) -->
+        <div class="slide" data-slide="2">
+            <div class="slide-header">
+                <div class="slide-number">2</div>
+                <h2 class="slide-title">Function-Based Views (FBVs)</h2>
+            </div>
+            <div class="content-section">
+                <p>Views are Python functions that receive an <span class="highlight">HttpRequest</span> and return an <span class="highlight">HttpResponse</span>.</p>
+                <h3><i class="fas fa-code"></i> Basic FBV Structure:</h3>
+                <div class="code-container">
+                    <pre class="code-block" id="code3"># views.py
+from django.http import HttpResponse
+from django.shortcuts import render
+
+def home(request):
+    return HttpResponse("Welcome to the homepage!")
+
+def about(request):
+    context = {'title': 'About Us', 'team_size': 12}
+    return render(request, 'about.html', context)</pre>
+                    <button class="copy-btn" onclick="copyCode('code3')">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+                <h3><i class="fas fa-project-diagram"></i> View Responsibilities:</h3>
+                <ul class="custom-list">
+                    <li>Process incoming request data (GET/POST parameters)</li>
+                    <li>Interact with models (query database)</li>
+                    <li>Pass data to templates via context dictionary</li>
+                    <li>Return rendered HTML or redirect</li>
+                </ul>
+                <h3><i class="fas fa-shield-alt"></i> Handling Requests:</h3>
+                <div class="code-container">
+                    <pre class="code-block" id="code4">def contact(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        email = request.POST.get('email')
+        # Process form data
+        return HttpResponse("Thank you!")
+    else:
+        return render(request, 'contact.html')</pre>
+                    <button class="copy-btn" onclick="copyCode('code4')">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Slide 3: Django Template Language (DTL) – Variables & Tags -->
+        <div class="slide" data-slide="3">
+            <div class="slide-header">
+                <div class="slide-number">3</div>
+                <h2 class="slide-title">Django Template Language (DTL): Variables & Tags</h2>
+            </div>
+            <div class="content-section">
+                <p>DTL allows embedding dynamic content into HTML using a simple, secure syntax.</p>
+                <h3><i class="fas fa-variable"></i> Variables:</h3>
+                <p>Render data passed from views using double curly braces.</p>
+                <div class="code-container">
+                    <pre class="code-block" id="code5">&lt;!-- In template: about.html --&gt;
+&lt;h1&gt;{{ title }}&lt;/h1&gt;
+&lt;p&gt;Our team has {{ team_size }} members.&lt;/p&gt;</pre>
+                    <button class="copy-btn" onclick="copyCode('code5')">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+                <h3><i class="fas fa-tags"></i> Built-in Tags:</h3>
+                <ul class="custom-list">
+                    <li><span class="highlight">{% if condition %} ... {% endif %}</span></li>
+                    <li><span class="highlight">{% for item in items %} ... {% endfor %}</span></li>
+                    <li><span class="highlight">{% url 'view_name' %}</span> – Reverse URL lookup</li>
+                    <li><span class="highlight">{% csrf_token %}</span> – Security for forms</li>
+                </ul>
+                <div class="code-container">
+                    <pre class="code-block" id="code6">&lt;ul&gt;
+{% for post in posts %}
+    &lt;li&gt;{{ post.title }} – {{ post.created_at|date:"M d, Y" }}&lt;/li&gt;
+{% empty %}
+    &lt;li&gt;No posts yet.&lt;/li&gt;
+{% endfor %}
+&lt;/ul&gt;</pre>
+                    <button class="copy-btn" onclick="copyCode('code6')">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Slide 4: DTL Filters and Security -->
+        <div class="slide" data-slide="4">
+            <div class="slide-header">
+                <div class="slide-number">4</div>
+                <h2 class="slide-title">DTL Filters and Security</h2>
+            </div>
+            <div class="content-section">
+                <p>Filters modify variables in templates. They are applied using the pipe (<span class="highlight">|</span>) symbol.</p>
+                <h3><i class="fas fa-filter"></i> Common Built-in Filters:</h3>
+                <div class="code-container">
+                    <pre class="code-block" id="code7">{{ name|upper }}                → Converts to uppercase
+{{ bio|truncatewords:15 }}     → Truncates after 15 words
+{{ price|floatformat:2 }}      → Formats as 19.90
+{{ date|date:"F j, Y" }}       → Formats date as "January 1, 2024"
+{{ content|linebreaks }}       → Converts \n to &lt;p&gt; and &lt;br&gt;</pre>
+                    <button class="copy-btn" onclick="copyCode('code7')">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+                <h3><i class="fas fa-lock"></i> Automatic Escaping:</h3>
+                <p>Django automatically escapes HTML in variables to prevent XSS attacks.</p>
+                <div class="code-container">
+                    <pre class="code-block" id="code8">&lt;!-- If user_input = "&lt;script&gt;alert('xss')&lt;/script&gt;" --&gt;
+{{ user_input }}  
+&lt;!-- Renders as harmless text, not executable script --&gt;</pre>
+                    <button class="copy-btn" onclick="copyCode('code8')">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+                <p>To disable escaping (only when safe), use the <span class="highlight">|safe</span> filter:</p>
+                <div class="code-container">
+                    <pre class="code-block" id="code9">{{ trusted_html|safe }}</pre>
+                    <button class="copy-btn" onclick="copyCode('code9')">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Slide 5: Template Inheritance -->
+        <div class="slide" data-slide="5">
+            <div class="slide-header">
+                <div class="slide-number">5</div>
+                <h2 class="slide-title">Template Inheritance</h2>
+            </div>
+            <div class="content-section">
+                <p>Template inheritance allows you to define a base template and extend it in child templates—reducing duplication.</p>
+                <h3><i class="fas fa-layer-group"></i> Base Template (base.html):</h3>
+                <div class="code-container">
+                    <pre class="code-block" id="code10">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;{% block title %}My Site{% endblock %}&lt;/title&gt;
+    &lt;link rel="stylesheet" href="{% static 'css/style.css' %}"&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;header&gt;My Website&lt;/header&gt;
+    &lt;main&gt;
+        {% block content %}{% endblock %}
+    &lt;/main&gt;
+    &lt;footer&gt;&copy; 2024&lt;/footer&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre>
+                    <button class="copy-btn" onclick="copyCode('code10')">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+                <h3><i class="fas fa-code-branch"></i> Child Template (home.html):</h3>
+                <div class="code-container">
+                    <pre class="code-block" id="code11">{% extends "base.html" %}
+
+{% block title %}Home – My Site{% endblock %}
+
+{% block content %}
+    &lt;h1&gt;Welcome!&lt;/h1&gt;
+    &lt;p&gt;This is the homepage.&lt;/p>
+{% endblock %}</pre>
+                    <button class="copy-btn" onclick="copyCode('code11')">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+                <div class="important-notes">
+                    <h4><i class="fas fa-lightbulb"></i> Key Benefits:</h4>
+                    <ul>
+                        <li>DRY (Don’t Repeat Yourself) principle</li>
+                        <li>Easier maintenance – change layout in one place</li>
+                        <li>Consistent site structure</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <!-- Slide 6: Static Files (CSS, JS, Images) -->
+        <div class="slide" data-slide="6">
+            <div class="slide-header">
+                <div class="slide-number">6</div>
+                <h2 class="slide-title">Static Files (CSS, JS, Images)</h2>
+            </div>
+            <div class="content-section">
+                <p>Static files are assets like CSS, JavaScript, and images served alongside your HTML.</p>
+                <h3><i class="fas fa-folder"></i> Project Structure:</h3>
+                <ul class="custom-list">
+                    <li><span class="highlight">myapp/static/myapp/style.css</span></li>
+                    <li><span class="highlight">myapp/static/myapp/images/logo.png</span></li>
+                </ul>
+                <h3><i class="fas fa-bolt"></i> Using Static Files in Templates:</h3>
+                <div class="code-container">
+                    <pre class="code-block" id="code12">{% load static %}
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;link rel="stylesheet" href="{% static 'myapp/style.css' %}"&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;img src="{% static 'myapp/images/logo.png' %}" alt="Logo"&gt;
+    &lt;script src="{% static 'myapp/script.js' %}"&gt;&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre>
+                    <button class="copy-btn" onclick="copyCode('code12')">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+                <h3><i class="fas fa-cog"></i> Settings:</h3>
+                <ul class="custom-list">
+                    <li>Django finds static files automatically if <span class="highlight">STATIC_URL = '/static/'</span></li>
+                    <li>During development, runserver serves static files automatically</li>
+                    <li>In production, configure web server (e.g., Nginx) or use <span class="highlight">collectstatic</span></li>
+                </ul>
+            </div>
+        </div>
+        <!-- Slide 7: Lab – Multi-Page Static Site -->
+        <div class="slide" data-slide="7">
+            <div class="slide-header">
+                <div class="slide-number">7</div>
+                <h2 class="slide-title">Lab: Create a Multi-Page Static Site</h2>
+            </div>
+            <div class="content-section">
+                <h3><i class="fas fa-tasks"></i> Requirements:</h3>
+                <ul class="custom-list">
+                    <li>Create pages: Home, About, Contact</li>
+                    <li>Use a shared base template</li>
+                    <li>Include static CSS file</li>
+                    <li>Use DTL variables and tags</li>
+                </ul>
+                <h3><i class="fas fa-code"></i> Implementation:</h3>
+                <div class="code-container">
+                    <pre class="code-block" id="code13"># urls.py (app level)
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('', views.home, name='home'),
+    path('about/', views.about, name='about'),
+    path('contact/', views.contact, name='contact'),
+]</pre>
+                    <button class="copy-btn" onclick="copyCode('code13')">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+                <div class="code-container">
+                    <pre class="code-block" id="code14"># views.py
+from django.shortcuts import render
+
+def home(request):
+    return render(request, 'pages/home.html')
+
+def about(request):
+    return render(request, 'pages/about.html', {'team': ['Alice', 'Bob', 'Charlie']})
+
+def contact(request):
+    return render(request, 'pages/contact.html')</pre>
+                    <button class="copy-btn" onclick="copyCode('code14')">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+                <div class="lab-section">
+                    <h3><i class="fas fa-rocket"></i> Lab Steps:</h3>
+                    <ol class="steps-list">
+                        <li>Create a new app: <span class="highlight">python manage.py startapp pages</span></li>
+                        <li>Add 'pages' to <span class="highlight">INSTALLED_APPS</span></li>
+                        <li>Create <span class="highlight">templates/base.html</span> and page templates in <span class="highlight">templates/pages/</span></li>
+                        <li>Create <span class="highlight">static/pages/style.css</span></li>
+                        <li>Define views and URL patterns</li>
+                        <li>Test all pages in browser</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+        <!-- Slide 8: 20 Interview Questions – Week 2 -->
+        <div class="slide" data-slide="8">
+            <div class="slide-header">
+                <div class="slide-number">8</div>
+                <h2 class="slide-title">20 Interview Questions – Week 2</h2>
+            </div>
+            <div class="content-section">
+                <h3><i class="fas fa-route"></i> URL Routing:</h3>
+                <ol class="steps-list">
+                    <li>What is the purpose of Django’s URL dispatcher?</li>
+                    <li>Explain the difference between <span class="highlight">path()</span> and <span class="highlight">re_path()</span>.</li>
+                    <li>How do you pass parameters from a URL to a view?</li>
+                    <li>What is the role of the <span class="highlight">name</span> argument in <span class="highlight">path()</span>?</li>
+                    <li>How do you include app-level URLs in the main project?</li>
+                </ol>
+                <h3><i class="fas fa-code"></i> Views:</h3>
+                <ol class="steps-list" start="6">
+                    <li>What is a function-based view (FBV)?</li>
+                    <li>What does a Django view function accept and return?</li>
+                    <li>How do you handle GET vs POST requests in a view?</li>
+                    <li>What is the purpose of the <span class="highlight">context</span> dictionary?</li>
+                    <li>When would you use <span class="highlight">HttpResponse</span> vs <span class="highlight">render()</span>?</li>
+                </ol>
+                <h3><i class="fas fa-file-code"></i> Templates & DTL:</h3>
+                <ol class="steps-list" start="11">
+                    <li>How does Django prevent XSS attacks in templates?</li>
+                    <li>What is template inheritance, and why is it useful?</li>
+                    <li>Explain the use of <span class="highlight">{% block %}</span> and <span class="highlight">{% extends %}</span>.</li>
+                    <li>How do you apply a filter to a variable in a template?</li>
+                    <li>Name three built-in DTL filters and their purposes.</li>
+                </ol>
+                <h3><i class="fas fa-image"></i> Static Files & Best Practices:</h3>
+                <ol class="steps-list" start="16">
+                    <li>How do you serve static files in Django during development?</li>
+                    <li>What is the purpose of <span class="highlight">{% load static %}</span>?</li>
+                    <li>Where should static files be placed in a Django app?</li>
+                    <li>Why should you avoid using <span class="highlight">|safe</span> unless necessary?</li>
+                    <li>How does Django resolve static file paths?</li>
+                </ol>
+                <div class="important-notes">
+                    <h4><i class="fas fa-star"></i> Pro Tip:</h4>
+                    <p>Be ready to write or debug a simple FBV, URL pattern, and template during interviews!</p>
+                </div>
+            </div>
+        </div>
+        <!-- Navigation -->
+        <div class="navigation">
+            <button class="nav-btn prev-btn" onclick="changeSlide(-1)" aria-label="Previous slide">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <div class="slide-counter">
+                <span id="currentSlide">1</span> / <span id="totalSlides">8</span>
+            </div>
+            <div style="display: flex; align-items: center;">
+                <button class="nav-btn next-btn" onclick="changeSlide(1)" aria-label="Next slide">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+                <button class="fullscreen-btn" onclick="toggleFullscreen()" aria-label="Toggle fullscreen" id="fullscreenBtn">
+                    <i class="fas fa-expand"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    <script>
+        let currentSlide = 0;
+        const totalSlides = 8; // Total content slides (excluding title)
+        const slideshowContainer = document.getElementById('slideshowContainer');
+        const fullscreenBtn = document.getElementById('fullscreenBtn');
+        let isFullscreen = false;
+        // Update slide counter display
+        function updateSlideCounter() {
+            document.getElementById('currentSlide').textContent = currentSlide === 0 ? 1 : currentSlide;
+            document.getElementById('totalSlides').textContent = totalSlides;
+        }
+        // Update progress bar
+        function updateProgressBar() {
+            const progressBar = document.getElementById('progressBar');
+            const progress = currentSlide === 0 ? 0 : (currentSlide / totalSlides) * 100;
+            progressBar.style.width = `${progress}%`;
+        }
+        // Go to specific slide
+        function goToSlide(slideIndex) {
+            // Hide all slides
+            document.querySelectorAll('.slide').forEach(slide => {
+                slide.classList.remove('active');
+            });
+            // Show the requested slide
+            currentSlide = slideIndex;
+            document.querySelector(`.slide[data-slide="${currentSlide}"]`).classList.add('active');
+            // Update UI
+            updateSlideCounter();
+            updateProgressBar();
+            // Update navigation buttons
+            document.querySelector('.prev-btn').disabled = currentSlide === 0;
+            document.querySelector('.next-btn').disabled = currentSlide === totalSlides;
+        }
+        // Change slide (next/prev)
+        function changeSlide(direction) {
+            let newSlide = currentSlide + direction;
+            // Ensure we stay within bounds
+            if (newSlide < 0) newSlide = 0;
+            if (newSlide > totalSlides) newSlide = totalSlides;
+            goToSlide(newSlide);
+        }
+        // Copy code to clipboard
+        function copyCode(codeId) {
+            const codeElement = document.getElementById(codeId);
+            const textToCopy = codeElement.textContent;
+            // Create temporary textarea element
+            const textarea = document.createElement('textarea');
+            textarea.value = textToCopy;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            // Update button to show copied state
+            const copyBtn = codeElement.parentElement.querySelector('.copy-btn');
+            copyBtn.innerHTML = '<i class="fas fa-check"></i>';
+            copyBtn.classList.add('copied');
+            // Revert back after 2 seconds
+            setTimeout(() => {
+                copyBtn.innerHTML = '<i class="fas fa-copy"></i>';
+                copyBtn.classList.remove('copied');
+            }, 2000);
+        }
+        // Toggle fullscreen mode - FIXED VERSION
+        function toggleFullscreen() {
+            if (!document.fullscreenElement && 
+                !document.mozFullScreenElement && 
+                !document.webkitFullscreenElement && 
+                !document.msFullscreenElement) {
+                // Enter fullscreen
+                if (slideshowContainer.requestFullscreen) {
+                    slideshowContainer.requestFullscreen();
+                } else if (slideshowContainer.msRequestFullscreen) {
+                    slideshowContainer.msRequestFullscreen();
+                } else if (slideshowContainer.mozRequestFullScreen) {
+                    slideshowContainer.mozRequestFullScreen();
+                } else if (slideshowContainer.webkitRequestFullscreen) {
+                    slideshowContainer.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+                }
+                isFullscreen = true;
+                fullscreenBtn.innerHTML = '<i class="fas fa-compress"></i>';
+            } else {
+                // Exit fullscreen
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                } else if (document.mozCancelFullScreen) {
+                    document.mozCancelFullScreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                }
+                isFullscreen = false;
+                fullscreenBtn.innerHTML = '<i class="fas fa-expand"></i>';
+            }
+        }
+        // Handle fullscreen change events
+        document.addEventListener('fullscreenchange', handleFullscreenChange);
+        document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+        document.addEventListener('mozfullscreenchange', handleFullscreenChange);
+        document.addEventListener('MSFullscreenChange', handleFullscreenChange);
+        function handleFullscreenChange() {
+            if (!document.fullscreenElement && 
+                !document.mozFullScreenElement && 
+                !document.webkitFullscreenElement && 
+                !document.msFullscreenElement) {
+                isFullscreen = false;
+                fullscreenBtn.innerHTML = '<i class="fas fa-expand"></i>';
+            } else {
+                isFullscreen = true;
+                fullscreenBtn.innerHTML = '<i class="fas fa-compress"></i>';
+            }
+        }
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                changeSlide(1);
+            } else if (e.key === 'ArrowLeft') {
+                changeSlide(-1);
+            } else if (e.key === 'f' || e.key === 'F') {
+                toggleFullscreen();
+            } else if (e.key === 'Escape') {
+                if (document.fullscreenElement || 
+                    document.mozFullScreenElement || 
+                    document.webkitFullscreenElement || 
+                    document.msFullscreenElement) {
+                    toggleFullscreen();
+                }
+            }
+        });
+        // Initialize slideshow
+        window.addEventListener('load', () => {
+            updateSlideCounter();
+            updateProgressBar();
+            document.querySelector('.prev-btn').disabled = true;
+        });
+    </script>
+</body>
+</html>
+
