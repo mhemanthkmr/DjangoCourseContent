@@ -281,14 +281,32 @@
             .week-title {
                 font-size: 1.15rem;
             }
+            
+            /* Mobile-specific fixes for header and button positioning */
+            .header-badge {
+                padding: 0.5rem 1rem;
+                font-size: 0.95rem;
+                border-radius: 50px;
+            }
+            
+            .header-badge i {
+                font-size: 0.9rem;
+            }
+            
+            .coffee-button {
+                top: 1rem;
+                right: 1rem;
+                padding: 0.5rem 0.75rem;
+                font-size: 0.85rem;
+            }
         }
         
         @media (max-width: 480px) {
             .coffee-button {
-                top: 0.5rem;
-                right: 0.5rem;
-                padding: 0.35rem 0.7rem;
-                font-size: 0.75rem;
+                top: 0.75rem;
+                right: 0.75rem;
+                padding: 0.4rem 0.7rem;
+                font-size: 0.8rem;
             }
             
             .week-number {
@@ -308,6 +326,22 @@
             .go-to-ppt {
                 padding: 0.65rem 1rem;
                 font-size: 0.9rem;
+            }
+            
+            /* Additional mobile optimization */
+            .header-badge {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.9rem;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+                line-height: 1.3;
+            }
+            
+            .subtitle {
+                font-size: 1rem;
+                line-height: 1.6;
             }
         }
     </style>
@@ -487,3 +521,4 @@
     </script>
 </body>
 </html>
+
