@@ -41,6 +41,36 @@
             max-width: 1500px;
             margin: 0 auto;
             padding: 2rem;
+            position: relative;
+        }
+        
+        .coffee-button {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: linear-gradient(135deg, #ffdd00, #ff9900);
+            color: #000;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: var(--shadow-md);
+            transition: var(--transition);
+            z-index: 10;
+        }
+        
+        .coffee-button:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .coffee-button i {
+            font-size: 1rem;
         }
         
         header {
@@ -214,6 +244,13 @@
                 padding: 1.5rem;
             }
             
+            .coffee-button {
+                top: 0.75rem;
+                right: 0.75rem;
+                padding: 0.4rem 0.8rem;
+                font-size: 0.8rem;
+            }
+            
             h1 {
                 font-size: 2rem;
             }
@@ -247,6 +284,13 @@
         }
         
         @media (max-width: 480px) {
+            .coffee-button {
+                top: 0.5rem;
+                right: 0.5rem;
+                padding: 0.35rem 0.7rem;
+                font-size: 0.75rem;
+            }
+            
             .week-number {
                 width: 32px;
                 height: 32px;
@@ -270,6 +314,11 @@
 </head>
 <body>
     <div class="container">
+        <a href="#" class="coffee-button">
+            <i class="fas fa-coffee"></i>
+            Buy me a Coffee
+        </a>
+        
         <header>
             <div class="header-badge">
                 <i class="fas fa-graduation-cap"></i>
@@ -438,4 +487,3 @@
     </script>
 </body>
 </html>
-
