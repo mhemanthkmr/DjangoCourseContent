@@ -589,8 +589,8 @@ from . import views
 urlpatterns = [
     path('', views.home, name='home'),
     path('about/', views.about, name='about'),
-    path('post/<int:post_id>/', views.post_detail, name='post_detail'),
-    path('user/<str:username>/', views.profile, name='profile'),
+    path('post/&lt;int:post_id&gt;/', views.post_detail, name='post_detail'),
+    path('user/&lt;str:username&gt;/', views.profile, name='profile'),
 ]</pre>
                     <button class="copy-btn" onclick="copyCode('code1')">
                         <i class="fas fa-copy"></i>
@@ -602,7 +602,7 @@ urlpatterns = [
                     <pre class="code-block" id="code2">from django.urls import re_path
 
 urlpatterns = [
-    re_path(r'^archive/(?P<year>[0-9]{4})/$', views.year_archive),
+    re_path(r'^archive/(?P&lt;year&gt;[0-9]{4})/$', views.year_archive),
 ]</pre>
                     <button class="copy-btn" onclick="copyCode('code2')">
                         <i class="fas fa-copy"></i>
