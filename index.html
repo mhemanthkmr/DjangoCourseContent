@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Django Course Syllabus</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif;
+        }
+        
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #7c3aed;
+            --accent: #0ea5e9;
+            --light: #f8fafc;
+            --dark: #0f172a;
+            --gray: #64748b;
+            --light-gray: #e2e8f0;
+            --border-radius: 16px;
+            --transition: all 0.2s ease;
+            --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        
+        body {
+            background-color: #f1f5f9;
+            color: var(--dark);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1500px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--light-gray);
+        }
+        
+        .header-badge {
+            display: inline-flex;
+            align-items: center;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 0.5rem 1.25rem;
+            border-radius: 999px;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow-md);
+        }
+        
+        .header-badge i {
+            margin-right: 0.5rem;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--dark);
+        }
+        
+        .subtitle {
+            font-size: 1.25rem;
+            color: var(--gray);
+            max-width: 700px;
+            margin: 0 auto;
+            line-height: 1.7;
+        }
+        
+        .weeks-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1.5rem;
+        }
+        
+        .week-card {
+            background: white;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+            transition: var(--transition);
+            width: 380px;
+            min-width: 320px;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid var(--light-gray);
+        }
+        
+        .week-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+            border-color: #cbd5e1;
+        }
+        
+        .week-header {
+            background: white;
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid var(--light-gray);
+        }
+        
+        .week-number {
+            background: var(--primary);
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-weight: 600;
+            font-size: 0.95rem;
+            flex-shrink: 0;
+        }
+        
+        .week-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--dark);
+            flex: 1;
+            line-height: 1.4;
+        }
+        
+        .week-content {
+            padding: 1.5rem;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .week-content ul {
+            list-style: none;
+            padding-left: 0;
+            margin-bottom: 1.5rem;
+            flex-grow: 1;
+        }
+        
+        .week-content li {
+            padding: 0.5rem 0;
+            display: flex;
+            align-items: flex-start;
+            color: var(--gray);
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        
+        .week-content li i {
+            color: var(--primary);
+            margin-right: 0.75rem;
+            margin-top: 0.25rem;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+        }
+        
+        .lab-item {
+            border-top: 1px dashed var(--light-gray);
+            padding-top: 0.75rem;
+            margin-top: 0.5rem;
+        }
+        
+        .lab-item i {
+            color: var(--secondary) !important;
+        }
+        
+        .go-to-ppt {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 0.75rem 1.25rem;
+            background: white;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: var(--transition);
+            margin-top: auto;
+        }
+        
+        .go-to-ppt i {
+            margin-right: 0.5rem;
+            font-size: 1.1rem;
+        }
+        
+        .go-to-ppt:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1.5rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .subtitle {
+                font-size: 1.1rem;
+            }
+            
+            .weeks-grid {
+                justify-content: center;
+            }
+            
+            .week-card {
+                width: 100%;
+                min-width: auto;
+                max-width: 400px;
+            }
+            
+            .week-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .week-number {
+                margin-bottom: 0.75rem;
+            }
+            
+            .week-title {
+                font-size: 1.15rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .week-number {
+                width: 32px;
+                height: 32px;
+                font-size: 0.85rem;
+            }
+            
+            .week-title {
+                font-size: 1.1rem;
+            }
+            
+            .week-content {
+                padding: 1.25rem;
+            }
+            
+            .go-to-ppt {
+                padding: 0.65rem 1rem;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-badge">
+                <i class="fas fa-graduation-cap"></i>
+                Professional Django Development Course
+            </div>
+            <h1>Django Course Syllabus</h1>
+            <p class="subtitle">A comprehensive 11-week journey to master Django development with hands-on projects and professional best practices.</p>
+        </header>
+        
+        <div class="weeks-grid" id="weeksGrid">
+            <!-- Weeks will be populated by JavaScript -->
+        </div>
+    </div>
+
+    <script>
+        // Updated course syllabus data
+        const syllabusData = [
+            {
+                week: 1,
+                title: "Introduction to Django & Web Frameworks",
+                topics: [
+                    "What is Django? Why use it?",
+                    "MVC vs. MTV architecture",
+                    "Setting up the development environment (Python, pip, virtualenv, Django)",
+                    "Creating your first Django project and app",
+                    "Understanding manage.py, settings.py, and project structure"
+                ],
+                lab: "Build a “Hello, World!” Django app"
+            },
+            {
+                week: 2,
+                title: "Django URLs, Views, and Templates",
+                topics: [
+                    "URL routing with path() and re_path()",
+                    "Function-based views (FBVs)",
+                    "Django template language (DTL): variables, tags, filters",
+                    "Template inheritance and static files"
+                ],
+                lab: "Create a multi-page static site (e.g., Home, About, Contact)"
+            },
+            {
+                week: 3,
+                title: "Models & Django ORM",
+                topics: [
+                    "Introduction to databases and ORM",
+                    "Defining models (models.py)",
+                    "Field types, relationships (ForeignKey, OneToOne, ManyToMany)",
+                    "Migrations (makemigrations, migrate)"
+                ],
+                lab: "Build a blog model (Post, Author)"
+            },
+            {
+                week: 4,
+                title: "Django Admin: Power User Guide",
+                topics: [
+                    "Registering models in the admin",
+                    "Customizing ModelAdmin: list_display, search_fields, list_filter, date_hierarchy",
+                    "Using TabularInline and StackedInline for related data",
+                    "Creating custom admin actions (e.g., bulk publish)",
+                    "Admin permissions, groups, and field-level security",
+                    "Basic admin theming and usability tips"
+                ],
+                lab: "Register and fully customize the blog admin, Add inline comments or tags, Implement a “Publish Selected Posts” action, Restrict sensitive fields based on user role"
+            },
+            {
+                week: 5,
+                title: "Forms & User Input",
+                topics: [
+                    "HTML forms vs. Django forms",
+                    "Creating forms with forms.Form and ModelForm",
+                    "Handling GET/POST requests",
+                    "Form validation and error handling"
+                ],
+                lab: "Add a “Create Post” form to the blog"
+            },
+            {
+                week: 6,
+                title: "Authentication & User Management",
+                topics: [
+                    "Built-in Django auth system",
+                    "Login, logout, and user registration",
+                    "User permissions and groups",
+                    "Password management"
+                ],
+                lab: "Implement login/logout and restrict post creation to authenticated users"
+            },
+            {
+                week: 7,
+                title: "Class-Based Views (CBVs)",
+                topics: [
+                    "Advantages of CBVs over FBVs",
+                    "Common generic views: ListView, DetailView, CreateView, UpdateView, DeleteView",
+                    "Customizing CBVs (get_queryset, form_valid, etc.)"
+                ],
+                lab: "Refactor blog views to use class-based views"
+            },
+            {
+                week: 8,
+                title: "Advanced Models & Database Queries",
+                topics: [
+                    "QuerySets and database lookups",
+                    "Aggregation, annotation, and raw SQL (if needed)",
+                    "Custom model managers",
+                    "Database optimization (select_related, prefetch_related)"
+                ],
+                lab: "Add categories and tags to blog posts; implement filtering by category/tag"
+            },
+            {
+                week: 9,
+                title: "Static & Media Files",
+                topics: [
+                    "Serving static files (CSS, JS, images) in development and production",
+                    "Handling user-uploaded media files",
+                    "Configuring STATIC_URL, STATIC_ROOT, MEDIA_URL, MEDIA_ROOT"
+                ],
+                lab: "Allow users to upload cover images for blog posts"
+            },
+            {
+                week: 10,
+                title: "REST APIs with Django REST Framework (DRF)",
+                topics: [
+                    "Introduction to RESTful APIs",
+                    "Serializers and ViewSets",
+                    "Authentication & permissions in DRF",
+                    "Building a simple API for the blog"
+                ],
+                lab: "Expose blog posts and authors via a JSON API"
+            },
+            {
+                week: 11,
+                title: "Final Project & Code Review",
+                topics: [
+                    "Students propose and build a complete Django project (e.g., e-commerce site, task manager, social network clone, CMS)",
+                    "Must include: user auth, database models, forms, admin customization, templates, and API (optional but encouraged)",
+                    "Write basic tests (e.g., for a view or form)",
+                    "Deploy to a free platform (Render, Railway, or similar)",
+                    "Peer code review and presentation",
+                    "Course wrap-up and next steps (Django Channels, async views, Docker, testing deep dive)"
+                ],
+                lab: "Fully functional, deployed Django app with polished admin and user-facing features"
+            }
+        ];
+
+        // Generate week cards
+        const weeksGrid = document.getElementById('weeksGrid');
+        syllabusData.forEach(weekData => {
+            const weekCard = document.createElement('div');
+            weekCard.className = 'week-card';
+            weekCard.innerHTML = `
+                <div class="week-header">
+                    <div class="week-number">${weekData.week}</div>
+                    <div class="week-title">${weekData.title}</div>
+                </div>
+                <div class="week-content">
+                    <ul>
+                        ${weekData.topics.map(topic => `<li><i class="fas fa-check-circle"></i> ${topic}</li>`).join('')}
+                        <li class="lab-item"><i class="fas fa-flask"></i> <strong>Lab:</strong> ${weekData.lab}</li>
+                    </ul>
+                    <a href="week${weekData.week}.html" class="go-to-ppt">
+                        <i class="fas fa-play-circle"></i> Go to PPT
+                    </a>
+                </div>
+            `;
+            weeksGrid.appendChild(weekCard);
+        });
+    </script>
+</body>
+</html>
+
