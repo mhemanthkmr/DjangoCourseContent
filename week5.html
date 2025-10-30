@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Week 5: Forms & User Input</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif;
+        }
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #7209b7;
+            --accent: #4cc9f0;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --light-gray: #e9ecef;
+            --success: #4ade80;
+            --warning: #facc15;
+            --card-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            --border-radius: 16px;
+            --transition: all 0.3s ease;
+        }
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4edf9 100%);
+            color: var(--dark);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .slideshow-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            background: white;
+            height: 85vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .slide {
+            display: none;
+            padding: 50px;
+            flex: 1;
+            overflow-y: auto;
+        }
+        .slide.active {
+            display: block;
+            animation: slideIn 0.5s ease-out;
+        }
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .slide-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 40px;
+            padding-bottom: 25px;
+            border-bottom: 2px solid var(--light-gray);
+        }
+        .slide-number {
+            background: var(--primary);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-right: 20px;
+            flex-shrink: 0;
+        }
+        .slide-title {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin: 0;
+        }
+        .content-section {
+            margin-bottom: 30px;
+        }
+        .content-section h3 {
+            font-size: 1.6rem;
+            margin-bottom: 20px;
+            color: var(--primary-dark);
+            display: flex;
+            align-items: center;
+        }
+        .content-section h3 i {
+            margin-right: 12px;
+            color: var(--primary);
+        }
+        .content-section p {
+            margin-bottom: 15px;
+            color: var(--dark);
+            font-size: 1.15rem;
+            line-height: 1.7;
+        }
+        .code-container {
+            position: relative;
+            margin: 25px 0;
+        }
+        .code-block {
+            background: #1e1e2e;
+            color: #e0e0e0;
+            padding: 25px;
+            border-radius: 14px;
+            font-family: 'Fira Code', 'Consolas', monospace;
+            font-size: 1.1rem;
+            overflow-x: auto;
+            line-height: 1.6;
+            border-left: 4px solid var(--accent);
+            margin: 0;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 14px;
+            transition: var(--transition);
+            z-index: 10;
+        }
+        .copy-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+        .copy-btn.copied {
+            background: var(--success);
+        }
+        .highlight {
+            background: rgba(67, 97, 238, 0.15);
+            color: var(--primary-dark);
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-weight: 600;
+            font-family: 'Fira Code', monospace;
+            font-size: 1.05rem;
+        }
+        .relationship-diagram {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 35px 0;
+            flex-wrap: wrap;
+            gap: 30px;
+        }
+        .entity {
+            background: white;
+            border: 2px solid var(--primary);
+            border-radius: 14px;
+            padding: 25px;
+            min-width: 220px;
+            text-align: center;
+            box-shadow: 0 6px 16px rgba(67, 97, 238, 0.15);
+        }
+        .entity h4 {
+            color: var(--primary-dark);
+            margin-bottom: 18px;
+            font-size: 1.4rem;
+            font-weight: 600;
+        }
+        .entity p {
+            color: var(--gray);
+            font-size: 1.05rem;
+            margin: 6px 0;
+            line-height: 1.5;
+        }
+        .arrow {
+            font-size: 2.5rem;
+            color: var(--success);
+            margin: 0 25px;
+        }
+        .lab-section {
+            background: linear-gradient(135deg, rgba(67, 97, 238, 0.1) 0%, rgba(114, 9, 183, 0.1) 100%);
+            border-radius: 14px;
+            padding: 30px;
+            margin-top: 30px;
+            border-left: 4px solid var(--secondary);
+        }
+        .lab-section h3 {
+            color: var(--secondary);
+            margin-bottom: 20px;
+            font-size: 1.6rem;
+        }
+        .steps-list {
+            padding-left: 30px;
+        }
+        .steps-list li {
+            margin-bottom: 12px;
+            color: var(--dark);
+            font-size: 1.15rem;
+            line-height: 1.6;
+        }
+        /* Custom list styling with single blue dot */
+        .custom-list {
+            padding-left: 20px;
+            margin: 20px 0;
+            list-style: none;
+        }
+        .custom-list li {
+            position: relative;
+            padding-left: 25px;
+            margin-bottom: 12px;
+            color: var(--dark);
+            font-size: 1.15rem;
+            line-height: 1.6;
+        }
+        .custom-list li:before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: var(--primary);
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        /* Important Notes section */
+        .important-notes {
+            background: #f8f9fa;
+            border-left: 4px solid var(--warning);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 25px 0;
+        }
+        .important-notes h4 {
+            color: var(--warning);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            font-size: 1.3rem;
+        }
+        .important-notes h4 i {
+            margin-right: 10px;
+        }
+        .important-notes ul {
+            padding-left: 20px;
+            margin: 10px 0;
+        }
+        .important-notes li {
+            position: relative;
+            padding-left: 25px;
+            margin-bottom: 10px;
+            color: var(--dark);
+            font-size: 1.1rem;
+            line-height: 1.6;
+            list-style: none;
+        }
+        .important-notes li:before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: var(--warning);
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        .important-notes li code {
+            background: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.95rem;
+        }
+        /* Navigation */
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 25px 50px;
+            background: var(--light);
+            border-top: 1px solid var(--light-gray);
+        }
+        .nav-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 22px;
+            transition: var(--transition);
+            box-shadow: 0 6px 15px rgba(67, 97, 238, 0.4);
+        }
+        .nav-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-3px);
+        }
+        .nav-btn:disabled {
+            background: var(--light-gray);
+            color: var(--gray);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        .slide-counter {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--gray);
+        }
+        /* Fullscreen button */
+        .fullscreen-btn {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 20px;
+            transition: var(--transition);
+            box-shadow: 0 6px 15px rgba(114, 9, 183, 0.4);
+            margin-left: 15px;
+        }
+        .fullscreen-btn:hover {
+            background: #5a0799;
+            transform: translateY(-3px);
+        }
+        /* Title slide */
+        .title-slide {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            height: 100%;
+            padding: 60px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+        }
+        .title-slide h1 {
+            font-size: 3.5rem;
+            margin-bottom: 25px;
+            font-weight: 800;
+            text-shadow: 0 3px 15px rgba(0,0,0,0.25);
+        }
+        .title-slide .subtitle {
+            font-size: 1.8rem;
+            font-weight: 300;
+            max-width: 900px;
+            line-height: 1.6;
+            opacity: 0.95;
+        }
+        /* Progress bar */
+        .progress-container {
+            height: 8px;
+            background: var(--light-gray);
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 10;
+        }
+        .progress-bar {
+            height: 100%;
+            background: var(--primary);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+        /* Fullscreen styles */
+        .fullscreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1000;
+            border-radius: 0;
+            margin: 0;
+            padding: 0;
+            box-shadow: none;
+        }
+        .fullscreen .navigation {
+            padding: 25px 40px;
+        }
+        /* Responsive design */
+        @media (max-width: 1200px) {
+            .slideshow-container {
+                max-width: 1000px;
+            }
+            .slide {
+                padding: 40px;
+            }
+            .slide-title {
+                font-size: 2.0rem;
+            }
+            .title-slide h1 {
+                font-size: 3.0rem;
+            }
+            .title-slide .subtitle {
+                font-size: 1.6rem;
+            }
+        }
+        @media (max-width: 992px) {
+            .slideshow-container {
+                max-width: 800px;
+                height: 88vh;
+            }
+            .slide {
+                padding: 35px;
+            }
+            .slide-header {
+                margin-bottom: 30px;
+            }
+            .slide-title {
+                font-size: 1.8rem;
+            }
+            .title-slide h1 {
+                font-size: 2.6rem;
+            }
+            .title-slide .subtitle {
+                font-size: 1.4rem;
+            }
+            .code-block {
+                font-size: 1.0rem;
+                padding: 20px;
+            }
+            .copy-btn {
+                top: 12px;
+                right: 12px;
+                width: 32px;
+                height: 32px;
+                font-size: 12px;
+            }
+            .important-notes {
+                padding: 15px;
+            }
+            .important-notes h4 {
+                font-size: 1.2rem;
+            }
+            .important-notes li {
+                font-size: 1.0rem;
+            }
+        }
+        @media (max-width: 768px) {
+            .slideshow-container {
+                height: 90vh;
+                margin: 10px;
+            }
+            .slide {
+                padding: 25px;
+            }
+            .slide-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .slide-number {
+                margin-bottom: 15px;
+                width: 40px;
+                height: 40px;
+                font-size: 1rem;
+            }
+            .slide-title {
+                font-size: 1.5rem;
+            }
+            .title-slide h1 {
+                font-size: 2.2rem;
+            }
+            .title-slide .subtitle {
+                font-size: 1.2rem;
+            }
+            .navigation {
+                padding: 20px 30px;
+            }
+            .nav-btn, .fullscreen-btn {
+                width: 45px;
+                height: 45px;
+                font-size: 18px;
+            }
+            .slide-counter {
+                font-size: 1.1rem;
+            }
+            .code-block {
+                padding: 18px;
+            }
+            .copy-btn {
+                top: 10px;
+                right: 10px;
+                width: 30px;
+                height: 30px;
+                font-size: 11px;
+            }
+            .custom-list li {
+                font-size: 1.1rem;
+            }
+        }
+        @media (max-width: 480px) {
+            .title-slide h1 {
+                font-size: 1.9rem;
+            }
+            .title-slide .subtitle {
+                font-size: 1.05rem;
+            }
+            .slide-title {
+                font-size: 1.4rem;
+            }
+            .code-block {
+                padding: 15px;
+                font-size: 0.9rem;
+            }
+            .content-section h3 {
+                font-size: 1.3rem;
+            }
+            .navigation {
+                flex-direction: column;
+                gap: 15px;
+            }
+            .slide-counter {
+                order: -1;
+            }
+            .copy-btn {
+                top: 8px;
+                right: 8px;
+                width: 28px;
+                height: 28px;
+                font-size: 10px;
+            }
+            .important-notes {
+                padding: 12px;
+            }
+            .important-notes h4 {
+                font-size: 1.1rem;
+            }
+            .important-notes li {
+                font-size: 0.95rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slideshow-container" id="slideshowContainer">
+        <!-- Progress bar -->
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+        <!-- Title Slide -->
+        <div class="slide active" data-slide="0">
+            <div class="title-slide">
+                <h1>Week 5: Forms & User Input</h1>
+                <div class="subtitle">Mastering form handling in Django for robust user interactions</div>
+            </div>
+        </div>
+        <!-- Slide 1: HTML Forms vs. Django Forms -->
+        <div class="slide" data-slide="1">
+            <div class="slide-header">
+                <div class="slide-number">1</div>
+                <h2 class="slide-title">HTML Forms vs. Django Forms</h2>
+            </div>
+            <div class="content-section">
+                <p>While raw HTML forms work, Django forms provide validation, security, and maintainability benefits.</p>
+                <h3><i class="fas fa-code"></i> HTML Form Example:</h3>
+                <div class="code-container">
+                    <pre class="code-block" id="code1">&lt;form method="post"&gt;
+    &lt;input type="text" name="title" required&gt;
+    &lt;textarea name="content"&gt;&lt;/textarea&gt;
+    &lt;button type="submit"&gt;Submit&lt;/button&gt;
+&lt;/form&gt;</pre>
+                    <button class="copy-btn" onclick="copyCode('code1')">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+                <h3><i class="fas fa-shield-alt"></i> Django Form Advantages:</h3>
+                <ul class="custom-list">
+                    <li>Automatic CSRF protection</li>
+                    <li>Built-in validation and error handling</li>
+                    <li>Easy rendering with <span class="highlight">{{ form.as_p }}</span></li>
+                    <li>Type-safe data handling with <span class="highlight">cleaned_data</span></li>
+                </ul>
+                <div class="important-notes">
+                    <h4><i class="fas fa-exclamation-triangle"></i> Key Insight:</h4>
+                    <ul>
+                        <li>Django forms handle both rendering and processing</li>
+                        <li>Always use Django forms for user input in production</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <!-- Slide 2: Creating Forms with forms.Form and ModelForm -->
+        <div class="slide" data-slide="2">
+            <div class="slide-header">
+                <div class="slide-number">2</div>
+                <h2 class="slide-title">Creating Forms: Form vs. ModelForm</h2>
+            </div>
+            <div class="content-section">
+                <p>Django provides two main form types: <span class="highlight">forms.Form</span> for custom logic and <span class="highlight">forms.ModelForm</span> for database models.</p>
+                <h3><i class="fas fa-file-alt"></i> Custom Form (forms.Form):</h3>
+                <div class="code-container">
+                    <pre class="code-block" id="code2"># forms.py
+from django import forms
+
+class ContactForm(forms.Form):
+    name = forms.CharField(max_length=100)
+    email = forms.EmailField()
+    message = forms.CharField(widget=forms.Textarea)</pre>
+                    <button class="copy-btn" onclick="copyCode('code2')">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+                <h3><i class="fas fa-database"></i> Model-Based Form (ModelForm):</h3>
+                <div class="code-container">
+                    <pre class="code-block" id="code3">from django.forms import ModelForm
+from .models import Post
+
+class PostForm(ModelForm):
+    class Meta:
+        model = Post
+        fields = ['title', 'content', 'author']</pre>
+                    <button class="copy-btn" onclick="copyCode('code3')">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+                <ul class="custom-list">
+                    <li>Use <span class="highlight">ModelForm</span> for CRUD operations on models</li>
+                    <li>Use <span class="highlight">Form</span> for non-model data (e.g., contact forms)</li>
+                    <li>Customize fields with <span class="highlight">widgets</span> and <span class="highlight">validators</span></li>
+                </ul>
+            </div>
+        </div>
+        <!-- Slide 3: Handling GET/POST Requests -->
+        <div class="slide" data-slide="3">
+            <div class="slide-header">
+                <div class="slide-number">3</div>
+                <h2 class="slide-title">Handling GET/POST Requests</h2>
+            </div>
+            <div class="content-section">
+                <p>Django views must distinguish between initial form display (GET) and form submission (POST).</p>
+                <h3><i class="fas fa-sync-alt"></i> View Pattern:</h3>
+                <div class="code-container">
+                    <pre class="code-block" id="code4">from django.shortcuts import render, redirect
+from .forms import PostForm
+
+def create_post(request):
+    if request.method == 'POST':
+        form = PostForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('post_list')
+    else:
+        form = PostForm()  # Empty form for GET
+    
+    return render(request, 'blog/create_post.html', {'form': form})</pre>
+                    <button class="copy-btn" onclick="copyCode('code4')">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+                <h3><i class="fas fa-file-code"></i> Template Example:</h3>
+                <div class="code-container">
+                    <pre class="code-block" id="code5">&lt;!-- create_post.html --&gt;
+&lt;form method="post"&gt;
+    {% csrf_token %}
+    {{ form.as_p }}
+    &lt;button type="submit"&gt;Create Post&lt;/button&gt;
+&lt;/form&gt;</pre>
+                    <button class="copy-btn" onclick="copyCode('code5')">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+                <div class="important-notes">
+                    <h4><i class="fas fa-lock"></i> Security Note:</h4>
+                    <ul>
+                        <li>Always include <code>{% csrf_token %}</code> in POST forms</li>
+                        <li>Never process form data without <code>form.is_valid()</code></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <!-- Slide 4: Form Validation and Error Handling -->
+        <div class="slide" data-slide="4">
+            <div class="slide-header">
+                <div class="slide-number">4</div>
+                <h2 class="slide-title">Form Validation & Error Handling</h2>
+            </div>
+            <div class="content-section">
+                <p>Django provides multiple validation layers: field-level, form-level, and model-level.</p>
+                <h3><i class="fas fa-check-circle"></i> Validation Types:</h3>
+                <ul class="custom-list">
+                    <li><span class="highlight">Field validators</span> – e.g., <code>MinLengthValidator</code></li>
+                    <li><span class="highlight">clean_fieldname()</span> – Custom field validation</li>
+                    <li><span class="highlight">clean()</span> – Cross-field validation</li>
+                    <li><span class="highlight">Model clean()</span> – Database-level constraints</li>
+                </ul>
+                <h3><i class="fas fa-bug"></i> Custom Validation Example:</h3>
+                <div class="code-container">
+                    <pre class="code-block" id="code6">class PostForm(ModelForm):
+    class Meta:
+        model = Post
+        fields = ['title', 'content']
+    
+    def clean_title(self):
+        title = self.cleaned_data['title']
+        if len(title) < 5:
+            raise forms.ValidationError("Title must be at least 5 characters.")
+        return title
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        title = cleaned_data.get('title')
+        content = cleaned_data.get('content')
+        if title and content and title.lower() in content.lower():
+            raise forms.ValidationError("Title cannot appear in content.")</pre>
+                    <button class="copy-btn" onclick="copyCode('code6')">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+                <div class="important-notes">
+                    <h4><i class="fas fa-exclamation-triangle"></i> Best Practices:</h4>
+                    <ul>
+                        <li>Always return cleaned data from validation methods</li>
+                        <li>Use <code>{{ form.non_field_errors }}</code> in templates for form-wide errors</li>
+                        <li>Test validation with invalid inputs</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <!-- Slide 5: Interview Questions -->
+        <div class="slide" data-slide="5">
+            <div class="slide-header">
+                <div class="slide-number">5</div>
+                <h2 class="slide-title">Common Interview Questions</h2>
+            </div>
+            <div class="content-section">
+                <h3><i class="fas fa-question-circle"></i> Core Concepts:</h3>
+                <ul class="custom-list">
+                    <li>What's the difference between <span class="highlight">Form</span> and <span class="highlight">ModelForm</span>?</li>
+                    <li>How does Django prevent CSRF attacks in forms?</li>
+                    <li>Explain the form validation process in Django.</li>
+                    <li>When would you use <span class="highlight">clean()</span> vs <span class="highlight">clean_fieldname()</span>?</li>
+                </ul>
+                <h3><i class="fas fa-lightbulb"></i> Scenario-Based:</h3>
+                <ul class="custom-list">
+                    <li>How would you implement a form that creates both a <span class="highlight">User</span> and <span class="highlight">Profile</span>?</li>
+                    <li>What steps would you take to debug a form that's not saving data?</li>
+                    <li>How do you handle file uploads in Django forms?</li>
+                </ul>
+                <div class="important-notes">
+                    <h4><i class="fas fa-graduation-cap"></i> Pro Tips:</h4>
+                    <ul>
+                        <li>Know the form lifecycle: <code>__init__</code> → <code>is_valid()</code> → <code>cleaned_data</code> → <code>save()</code></li>
+                        <li>Understand when to override <code>save()</code> for custom logic</li>
+                        <li>Be ready to discuss security implications (XSS, CSRF, validation bypass)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <!-- Slide 6: Lab - Create Post Form -->
+        <div class="slide" data-slide="6">
+            <div class="slide-header">
+                <div class="slide-number">6</div>
+                <h2 class="slide-title">Lab: Add "Create Post" Form</h2>
+            </div>
+            <div class="content-section">
+                <h3><i class="fas fa-tasks"></i> Requirements:</h3>
+                <ul class="custom-list">
+                    <li>Create a <span class="highlight">PostForm</span> using <span class="highlight">ModelForm</span></li>
+                    <li>Implement a view that handles GET (display form) and POST (process form)</li>
+                    <li>Add custom validation: title must be ≥ 5 chars, content ≥ 20 chars</li>
+                    <li>Create a template that renders the form with error handling</li>
+                </ul>
+                <h3><i class="fas fa-code"></i> Solution Implementation:</h3>
+                <div class="code-container">
+                    <pre class="code-block" id="code7"># forms.py
+from django import forms
+from .models import Post
+
+class PostForm(forms.ModelForm):
+    class Meta:
+        model = Post
+        fields = ['title', 'content', 'author']
+    
+    def clean_title(self):
+        title = self.cleaned_data['title']
+        if len(title) < 5:
+            raise forms.ValidationError("Title must be at least 5 characters.")
+        return title
+    
+    def clean_content(self):
+        content = self.cleaned_data['content']
+        if len(content) < 20:
+            raise forms.ValidationError("Content must be at least 20 characters.")
+        return content</pre>
+                    <button class="copy-btn" onclick="copyCode('code7')">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+                <div class="code-container">
+                    <pre class="code-block" id="code8"># views.py
+from django.shortcuts import render, redirect
+from .forms import PostForm
+
+def create_post(request):
+    if request.method == 'POST':
+        form = PostForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('post_list')
+    else:
+        form = PostForm()
+    return render(request, 'blog/create_post.html', {'form': form})</pre>
+                    <button class="copy-btn" onclick="copyCode('code8')">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+                <div class="lab-section">
+                    <h3><i class="fas fa-rocket"></i> Lab Steps:</h3>
+                    <ol class="steps-list">
+                        <li>Create <span class="highlight">blog/forms.py</span> with <span class="highlight">PostForm</span></li>
+                        <li>Update <span class="highlight">blog/views.py</span> with <span class="highlight">create_post</span> view</li>
+                        <li>Create template <span class="highlight">blog/templates/blog/create_post.html</span></li>
+                        <li>Add URL pattern in <span class="highlight">blog/urls.py</span></li>
+                        <li>Test with valid/invalid inputs and verify error messages</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+        <!-- Navigation -->
+        <div class="navigation">
+            <button class="nav-btn prev-btn" onclick="changeSlide(-1)" aria-label="Previous slide">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <div class="slide-counter">
+                <span id="currentSlide">1</span> / <span id="totalSlides">6</span>
+            </div>
+            <div style="display: flex; align-items: center;">
+                <button class="nav-btn next-btn" onclick="changeSlide(1)" aria-label="Next slide">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+                <button class="fullscreen-btn" onclick="toggleFullscreen()" aria-label="Toggle fullscreen" id="fullscreenBtn">
+                    <i class="fas fa-expand"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    <script>
+        let currentSlide = 0;
+        const totalSlides = 6; // Updated total content slides (excluding title)
+        const slideshowContainer = document.getElementById('slideshowContainer');
+        const fullscreenBtn = document.getElementById('fullscreenBtn');
+        let isFullscreen = false;
+        // Update slide counter display
+        function updateSlideCounter() {
+            document.getElementById('currentSlide').textContent = currentSlide === 0 ? 1 : currentSlide;
+            document.getElementById('totalSlides').textContent = totalSlides;
+        }
+        // Update progress bar
+        function updateProgressBar() {
+            const progressBar = document.getElementById('progressBar');
+            const progress = currentSlide === 0 ? 0 : (currentSlide / totalSlides) * 100;
+            progressBar.style.width = `${progress}%`;
+        }
+        // Go to specific slide
+        function goToSlide(slideIndex) {
+            // Hide all slides
+            document.querySelectorAll('.slide').forEach(slide => {
+                slide.classList.remove('active');
+            });
+            // Show the requested slide
+            currentSlide = slideIndex;
+            document.querySelector(`.slide[data-slide="${currentSlide}"]`).classList.add('active');
+            // Update UI
+            updateSlideCounter();
+            updateProgressBar();
+            // Update navigation buttons
+            document.querySelector('.prev-btn').disabled = currentSlide === 0;
+            document.querySelector('.next-btn').disabled = currentSlide === totalSlides;
+        }
+        // Change slide (next/prev)
+        function changeSlide(direction) {
+            let newSlide = currentSlide + direction;
+            // Ensure we stay within bounds
+            if (newSlide < 0) newSlide = 0;
+            if (newSlide > totalSlides) newSlide = totalSlides;
+            goToSlide(newSlide);
+        }
+        // Copy code to clipboard
+        function copyCode(codeId) {
+            const codeElement = document.getElementById(codeId);
+            const textToCopy = codeElement.textContent;
+            // Create temporary textarea element
+            const textarea = document.createElement('textarea');
+            textarea.value = textToCopy;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            // Update button to show copied state
+            const copyBtn = codeElement.parentElement.querySelector('.copy-btn');
+            copyBtn.innerHTML = '<i class="fas fa-check"></i>';
+            copyBtn.classList.add('copied');
+            // Revert back after 2 seconds
+            setTimeout(() => {
+                copyBtn.innerHTML = '<i class="fas fa-copy"></i>';
+                copyBtn.classList.remove('copied');
+            }, 2000);
+        }
+        // Toggle fullscreen mode - FIXED VERSION
+        function toggleFullscreen() {
+            if (!document.fullscreenElement && 
+                !document.mozFullScreenElement && 
+                !document.webkitFullscreenElement && 
+                !document.msFullscreenElement) {
+                // Enter fullscreen
+                if (slideshowContainer.requestFullscreen) {
+                    slideshowContainer.requestFullscreen();
+                } else if (slideshowContainer.msRequestFullscreen) {
+                    slideshowContainer.msRequestFullscreen();
+                } else if (slideshowContainer.mozRequestFullScreen) {
+                    slideshowContainer.mozRequestFullScreen();
+                } else if (slideshowContainer.webkitRequestFullscreen) {
+                    slideshowContainer.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+                }
+                isFullscreen = true;
+                fullscreenBtn.innerHTML = '<i class="fas fa-compress"></i>';
+            } else {
+                // Exit fullscreen
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                } else if (document.mozCancelFullScreen) {
+                    document.mozCancelFullScreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                }
+                isFullscreen = false;
+                fullscreenBtn.innerHTML = '<i class="fas fa-expand"></i>';
+            }
+        }
+        // Handle fullscreen change events
+        document.addEventListener('fullscreenchange', handleFullscreenChange);
+        document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+        document.addEventListener('mozfullscreenchange', handleFullscreenChange);
+        document.addEventListener('MSFullscreenChange', handleFullscreenChange);
+        function handleFullscreenChange() {
+            if (!document.fullscreenElement && 
+                !document.mozFullScreenElement && 
+                !document.webkitFullscreenElement && 
+                !document.msFullscreenElement) {
+                isFullscreen = false;
+                fullscreenBtn.innerHTML = '<i class="fas fa-expand"></i>';
+            } else {
+                isFullscreen = true;
+                fullscreenBtn.innerHTML = '<i class="fas fa-compress"></i>';
+            }
+        }
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                changeSlide(1);
+            } else if (e.key === 'ArrowLeft') {
+                changeSlide(-1);
+            } else if (e.key === 'f' || e.key === 'F') {
+                toggleFullscreen();
+            } else if (e.key === 'Escape') {
+                if (document.fullscreenElement || 
+                    document.mozFullScreenElement || 
+                    document.webkitFullscreenElement || 
+                    document.msFullscreenElement) {
+                    toggleFullscreen();
+                }
+            }
+        });
+        // Initialize slideshow
+        window.addEventListener('load', () => {
+            updateSlideCounter();
+            updateProgressBar();
+            document.querySelector('.prev-btn').disabled = true;
+        });
+    </script>
+</body>
+</html>
