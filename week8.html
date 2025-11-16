@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Week 8: Advanced Models & Database Queries</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif;
+        }
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #7209b7;
+            --accent: #4cc9f0;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --light-gray: #e9ecef;
+            --success: #4ade80;
+            --warning: #facc15;
+            --card-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            --border-radius: 16px;
+            --transition: all 0.3s ease;
+        }
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4edf9 100%);
+            color: var(--dark);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .slideshow-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            background: white;
+            height: 85vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .slide {
+            display: none;
+            padding: 50px;
+            flex: 1;
+            overflow-y: auto;
+        }
+        .slide.active {
+            display: block;
+            animation: slideIn 0.5s ease-out;
+        }
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .slide-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 40px;
+            padding-bottom: 25px;
+            border-bottom: 2px solid var(--light-gray);
+        }
+        .slide-number {
+            background: var(--primary);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-right: 20px;
+            flex-shrink: 0;
+        }
+        .slide-title {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin: 0;
+        }
+        .content-section {
+            margin-bottom: 30px;
+        }
+        .content-section h3 {
+            font-size: 1.6rem;
+            margin-bottom: 20px;
+            color: var(--primary-dark);
+            display: flex;
+            align-items: center;
+        }
+        .content-section h3 i {
+            margin-right: 12px;
+            color: var(--primary);
+        }
+        .content-section p {
+            margin-bottom: 15px;
+            color: var(--dark);
+            font-size: 1.15rem;
+            line-height: 1.7;
+        }
+        .code-container {
+            position: relative;
+            margin: 25px 0;
+        }
+        .code-block {
+            background: #1e1e2e;
+            color: #e0e0e0;
+            padding: 25px;
+            border-radius: 14px;
+            font-family: 'Fira Code', 'Consolas', monospace;
+            font-size: 1.1rem;
+            overflow-x: auto;
+            line-height: 1.6;
+            border-left: 4px solid var(--accent);
+            margin: 0;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 14px;
+            transition: var(--transition);
+            z-index: 10;
+        }
+        .copy-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+        .copy-btn.copied {
+            background: var(--success);
+        }
+        .highlight {
+            background: rgba(67, 97, 238, 0.15);
+            color: var(--primary-dark);
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-weight: 600;
+            font-family: 'Fira Code', monospace;
+            font-size: 1.05rem;
+        }
+        .relationship-diagram {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 35px 0;
+            flex-wrap: wrap;
+            gap: 30px;
+        }
+        .entity {
+            background: white;
+            border: 2px solid var(--primary);
+            border-radius: 14px;
+            padding: 25px;
+            min-width: 220px;
+            text-align: center;
+            box-shadow: 0 6px 16px rgba(67, 97, 238, 0.15);
+        }
+        .entity h4 {
+            color: var(--primary-dark);
+            margin-bottom: 18px;
+            font-size: 1.4rem;
+            font-weight: 600;
+        }
+        .entity p {
+            color: var(--gray);
+            font-size: 1.05rem;
+            margin: 6px 0;
+            line-height: 1.5;
+        }
+        .arrow {
+            font-size: 2.5rem;
+            color: var(--success);
+            margin: 0 25px;
+        }
+        .lab-section {
+            background: linear-gradient(135deg, rgba(67, 97, 238, 0.1) 0%, rgba(114, 9, 183, 0.1) 100%);
+            border-radius: 14px;
+            padding: 30px;
+            margin-top: 30px;
+            border-left: 4px solid var(--secondary);
+        }
+        .lab-section h3 {
+            color: var(--secondary);
+            margin-bottom: 20px;
+            font-size: 1.6rem;
+        }
+        .steps-list {
+            padding-left: 30px;
+        }
+        .steps-list li {
+            margin-bottom: 12px;
+            color: var(--dark);
+            font-size: 1.15rem;
+            line-height: 1.6;
+        }
+        /* Custom list styling with single blue dot */
+        .custom-list {
+            padding-left: 20px;
+            margin: 20px 0;
+            list-style: none;
+        }
+        .custom-list li {
+            position: relative;
+            padding-left: 25px;
+            margin-bottom: 12px;
+            color: var(--dark);
+            font-size: 1.15rem;
+            line-height: 1.6;
+        }
+        .custom-list li:before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: var(--primary);
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        /* Important Notes section */
+        .important-notes {
+            background: #f8f9fa;
+            border-left: 4px solid var(--warning);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 25px 0;
+        }
+        .important-notes h4 {
+            color: var(--warning);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            font-size: 1.3rem;
+        }
+        .important-notes h4 i {
+            margin-right: 10px;
+        }
+        .important-notes ul {
+            padding-left: 20px;
+            margin: 10px 0;
+        }
+        .important-notes li {
+            position: relative;
+            padding-left: 25px;
+            margin-bottom: 10px;
+            color: var(--dark);
+            font-size: 1.1rem;
+            line-height: 1.6;
+            list-style: none;
+        }
+        .important-notes li:before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: var(--warning);
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        .important-notes li code {
+            background: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.95rem;
+        }
+        /* Navigation */
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 25px 50px;
+            background: var(--light);
+            border-top: 1px solid var(--light-gray);
+        }
+        .nav-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 22px;
+            transition: var(--transition);
+            box-shadow: 0 6px 15px rgba(67, 97, 238, 0.4);
+        }
+        .nav-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-3px);
+        }
+        .nav-btn:disabled {
+            background: var(--light-gray);
+            color: var(--gray);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        .slide-counter {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--gray);
+        }
+        /* Fullscreen button */
+        .fullscreen-btn {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 20px;
+            transition: var(--transition);
+            box-shadow: 0 6px 15px rgba(114, 9, 183, 0.4);
+            margin-left: 15px;
+        }
+        .fullscreen-btn:hover {
+            background: #5a0799;
+            transform: translateY(-3px);
+        }
+        /* Title slide */
+        .title-slide {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            height: 100%;
+            padding: 60px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+        }
+        .title-slide h1 {
+            font-size: 3.5rem;
+            margin-bottom: 25px;
+            font-weight: 800;
+            text-shadow: 0 3px 15px rgba(0,0,0,0.25);
+        }
+        .title-slide .subtitle {
+            font-size: 1.8rem;
+            font-weight: 300;
+            max-width: 900px;
+            line-height: 1.6;
+            opacity: 0.95;
+        }
+        /* Progress bar */
+        .progress-container {
+            height: 8px;
+            background: var(--light-gray);
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 10;
+        }
+        .progress-bar {
+            height: 100%;
+            background: var(--primary);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+        /* Fullscreen styles */
+        .fullscreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1000;
+            border-radius: 0;
+            margin: 0;
+            padding: 0;
+            box-shadow: none;
+        }
+        .fullscreen .navigation {
+            padding: 25px 40px;
+        }
+        /* Responsive design */
+        @media (max-width: 1200px) {
+            .slideshow-container {
+                max-width: 1000px;
+            }
+            .slide {
+                padding: 40px;
+            }
+            .slide-title {
+                font-size: 2.0rem;
+            }
+            .title-slide h1 {
+                font-size: 3.0rem;
+            }
+            .title-slide .subtitle {
+                font-size: 1.6rem;
+            }
+        }
+        @media (max-width: 992px) {
+            .slideshow-container {
+                max-width: 800px;
+                height: 88vh;
+            }
+            .slide {
+                padding: 35px;
+            }
+            .slide-header {
+                margin-bottom: 30px;
+            }
+            .slide-title {
+                font-size: 1.8rem;
+            }
+            .title-slide h1 {
+                font-size: 2.6rem;
+            }
+            .title-slide .subtitle {
+                font-size: 1.4rem;
+            }
+            .code-block {
+                font-size: 1.0rem;
+                padding: 20px;
+            }
+            .copy-btn {
+                top: 12px;
+                right: 12px;
+                width: 32px;
+                height: 32px;
+                font-size: 12px;
+            }
+            .important-notes {
+                padding: 15px;
+            }
+            .important-notes h4 {
+                font-size: 1.2rem;
+            }
+            .important-notes li {
+                font-size: 1.0rem;
+            }
+        }
+        @media (max-width: 768px) {
+            .slideshow-container {
+                height: 90vh;
+                margin: 10px;
+            }
+            .slide {
+                padding: 25px;
+            }
+            .slide-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .slide-number {
+                margin-bottom: 15px;
+                width: 40px;
+                height: 40px;
+                font-size: 1rem;
+            }
+            .slide-title {
+                font-size: 1.5rem;
+            }
+            .title-slide h1 {
+                font-size: 2.2rem;
+            }
+            .title-slide .subtitle {
+                font-size: 1.2rem;
+            }
+            .navigation {
+                padding: 20px 30px;
+            }
+            .nav-btn, .fullscreen-btn {
+                width: 45px;
+                height: 45px;
+                font-size: 18px;
+            }
+            .slide-counter {
+                font-size: 1.1rem;
+            }
+            .code-block {
+                padding: 18px;
+            }
+            .copy-btn {
+                top: 10px;
+                right: 10px;
+                width: 30px;
+                height: 30px;
+                font-size: 11px;
+            }
+            .custom-list li {
+                font-size: 1.1rem;
+            }
+        }
+        @media (max-width: 480px) {
+            .title-slide h1 {
+                font-size: 1.9rem;
+            }
+            .title-slide .subtitle {
+                font-size: 1.05rem;
+            }
+            .slide-title {
+                font-size: 1.4rem;
+            }
+            .code-block {
+                padding: 15px;
+                font-size: 0.9rem;
+            }
+            .content-section h3 {
+                font-size: 1.3rem;
+            }
+            .navigation {
+                flex-direction: column;
+                gap: 15px;
+            }
+            .slide-counter {
+                order: -1;
+            }
+            .copy-btn {
+                top: 8px;
+                right: 8px;
+                width: 28px;
+                height: 28px;
+                font-size: 10px;
+            }
+            .important-notes {
+                padding: 12px;
+            }
+            .important-notes h4 {
+                font-size: 1.1rem;
+            }
+            .important-notes li {
+                font-size: 0.95rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slideshow-container" id="slideshowContainer">
+        <!-- Progress bar -->
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+        <!-- Title Slide -->
+        <div class="slide active" data-slide="0">
+            <div class="title-slide">
+                <h1>Week 8: Advanced Models & Database Queries</h1>
+                <div class="subtitle">Mastering Django ORM for efficient data retrieval and manipulation</div>
+            </div>
+        </div>
+        <!-- Slide 1: QuerySets and Database Lookups -->
+        <div class="slide" data-slide="1">
+            <div class="slide-header">
+                <div class="slide-number">1</div>
+                <h2 class="slide-title">QuerySets and Database Lookups</h2>
+            </div>
+            <div class="content-section">
+                <p>QuerySets are lazy database query representations that enable efficient, chainable database operations.</p>
+                <h3><i class="fas fa-search"></i> Field Lookups:</h3>
+                <ul class="custom-list">
+                    <li><span class="highlight">exact</span>, <span class="highlight">iexact</span> - case-sensitive/insensitive equality</li>
+                    <li><span class="highlight">contains</span>, <span class="highlight">icontains</span> - substring matching</li>
+                    <li><span class="highlight">in</span>, <span class="highlight">range</span> - value ranges</li>
+                    <li><span class="highlight">gt</span>, <span class="highlight">gte</span>, <span class="highlight">lt</span>, <span class="highlight">lte</span> - comparisons</li>
+                    <li><span class="highlight">startswith</span>, <span class="highlight">endswith</span> - string boundaries</li>
+                </ul>
+                <h3><i class="fas fa-code"></i> QuerySet Examples:</h3>
+                <div class="code-container">
+                    <pre class="code-block" id="code1"># Get published posts from 2023
+Post.objects.filter(published_date__year=2023, status='published')
+
+# Posts with titles containing "Django" (case-insensitive)
+Post.objects.filter(title__icontains='django')
+
+# Posts by authors with emails ending in "@example.com"
+Post.objects.filter(author__email__endswith='@example.com')
+
+# Chaining queries
+Post.objects.filter(status='published').exclude(title__startswith='Draft')</pre>
+                    <button class="copy-btn" onclick="copyCode('code1')">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+                <div class="important-notes">
+                    <h4><i class="fas fa-exclamation-triangle"></i> Key Insight:</h4>
+                    <ul>
+                        <li>QuerySets are lazy - queries execute only when evaluated</li>
+                        <li>Use double underscores (<code>__</code>) for field lookups and relationships</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <!-- Slide 2: Aggregation, Annotation, and Raw SQL -->
+        <div class="slide" data-slide="2">
+            <div class="slide-header">
+                <div class="slide-number">2</div>
+                <h2 class="slide-title">Aggregation, Annotation & Raw SQL</h2>
+            </div>
+            <div class="content-section">
+                <p>Django ORM provides powerful functions for data summarization and complex queries.</p>
+                <h3><i class="fas fa-calculator"></i> Aggregation Functions:</h3>
+                <div class="code-container">
+                    <pre class="code-block" id="code2">from django.db.models import Count, Avg, Max, Min, Sum
+
+# Total number of posts
+Post.objects.count()
+
+# Average post length
+Post.objects.aggregate(Avg('word_count'))
+
+# Posts per author
+Post.objects.values('author').annotate(post_count=Count('id'))
+
+# Longest post
+Post.objects.aggregate(Max('word_count'))</pre>
+                    <button class="copy-btn" onclick="copyCode('code2')">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+                <h3><i class="fas fa-database"></i> Raw SQL (When Needed):</h3>
+                <div class="code-container">
+                    <pre class="code-block" id="code3"># Raw queries for complex operations
+Post.objects.raw('SELECT * FROM blog_post WHERE word_count > %s', [1000])
+
+# Direct database connection for non-ORM operations
+from django.db import connection
+with connection.cursor() as cursor:
+    cursor.execute("UPDATE blog_post SET views = views + 1 WHERE id = %s", [post_id])</pre>
+                    <button class="copy-btn" onclick="copyCode('code3')">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+                <div class="important-notes">
+                    <h4><i class="fas fa-exclamation-triangle"></i> Best Practice:</h4>
+                    <ul>
+                        <li>Prefer ORM over raw SQL for security and maintainability</li>
+                        <li>Use <code>extra()</code> or <code>raw()</code> only when ORM can't express the query</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <!-- Slide 3: Custom Model Managers -->
+        <div class="slide" data-slide="3">
+            <div class="slide-header">
+                <div class="slide-number">3</div>
+                <h2 class="slide-title">Custom Model Managers</h2>
+            </div>
+            <div class="content-section">
+                <p>Custom managers encapsulate common query patterns and provide a cleaner API for your models.</p>
+                <h3><i class="fas fa-cogs"></i> Creating Custom Managers:</h3>
+                <div class="code-container">
+                    <pre class="code-block" id="code4"># models.py
+class PublishedManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(status='published')
+
+class Post(models.Model):
+    title = models.CharField(max_length=200)
+    status = models.CharField(max_length=10, choices=[('draft', 'Draft'), ('published', 'Published')])
+    published_date = models.DateTimeField(null=True, blank=True)
+    
+    objects = models.Manager()  # Default manager
+    published = PublishedManager()  # Custom manager</pre>
+                    <button class="copy-btn" onclick="copyCode('code4')">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+                <h3><i class="fas fa-magic"></i> Using Custom Managers:</h3>
+                <div class="code-container">
+                    <pre class="code-block" id="code5"># Get all published posts
+published_posts = Post.published.all()
+
+# Chain with other QuerySet methods
+recent_published = Post.published.filter(published_date__year=2023)
+
+# Custom methods in managers
+class PublishedManager(models.Manager):
+    def recent(self, days=7):
+        cutoff = timezone.now() - timedelta(days=days)
+        return self.get_queryset().filter(published_date__gte=cutoff)
+
+# Usage: Post.published.recent(30)</pre>
+                    <button class="copy-btn" onclick="copyCode('code5')">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+                <ul class="custom-list">
+                    <li>Custom managers improve code readability and reusability</li>
+                    <li>Always keep the default <span class="highlight">objects</span> manager</li>
+                    <li>Use <span class="highlight">get_queryset()</span> to modify the base QuerySet</li>
+                </ul>
+            </div>
+        </div>
+        <!-- Slide 4: Database Optimization -->
+        <div class="slide" data-slide="4">
+            <div class="slide-header">
+                <div class="slide-number">4</div>
+                <h2 class="slide-title">Database Optimization</h2>
+            </div>
+            <div class="content-section">
+                <p>Optimize database queries to prevent N+1 problems and improve application performance.</p>
+                <h3><i class="fas fa-bolt"></i> select_related() - ForeignKey Optimization:</h3>
+                <div class="code-container">
+                    <pre class="code-block" id="code6"># Without optimization - N+1 queries
+posts = Post.objects.all()
+for post in posts:
+    print(post.author.username)  # Separate query for each post
+
+# With select_related - single query with JOIN
+posts = Post.objects.select_related('author')
+for post in posts:
+    print(post.author.username)  # No additional query</pre>
+                    <button class="copy-btn" onclick="copyCode('code6')">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+                <h3><i class="fas fa-project-diagram"></i> prefetch_related() - Reverse Relations:</h3>
+                <div class="code-container">
+                    <pre class="code-block" id="code7"># For ManyToMany or reverse ForeignKey
+authors = Author.objects.prefetch_related('posts')
+for author in authors:
+    for post in author.posts.all():  # No additional queries
+        print(post.title)
+
+# Prefetch with filtering
+from django.db.models import Prefetch
+authors = Author.objects.prefetch_related(
+    Prefetch('posts', queryset=Post.objects.filter(status='published'))
+)</pre>
+                    <button class="copy-btn" onclick="copyCode('code7')">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+                <div class="important-notes">
+                    <h4><i class="fas fa-chart-line"></i> Performance Tips:</h4>
+                    <ul>
+                        <li>Use Django Debug Toolbar to identify N+1 queries</li>
+                        <li><code>select_related</code> for forward ForeignKey/OneToOne</li>
+                        <li><code>prefetch_related</code> for reverse ForeignKey/ManyToMany</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <!-- Slide 5: Interview Questions -->
+        <div class="slide" data-slide="5">
+            <div class="slide-header">
+                <div class="slide-number">5</div>
+                <h2 class="slide-title">Common Interview Questions</h2>
+            </div>
+            <div class="content-section">
+                <h3><i class="fas fa-question-circle"></i> Core Concepts:</h3>
+                <ul class="custom-list">
+                    <li>What is the difference between <span class="highlight">select_related</span> and <span class="highlight">prefetch_related</span>?</li>
+                    <li>Explain the N+1 query problem and how to solve it.</li>
+                    <li>When would you use raw SQL instead of the Django ORM?</li>
+                    <li>How do custom model managers improve code organization?</li>
+                </ul>
+                <h3><i class="fas fa-lightbulb"></i> Scenario-Based:</h3>
+                <ul class="custom-list">
+                    <li>How would you optimize a view that displays 100 blog posts with their authors and comment counts?</li>
+                    <li>What strategies would you use to implement complex search functionality?</li>
+                    <li>How do you handle database migrations when optimizing queries?</li>
+                </ul>
+                <div class="important-notes">
+                    <h4><i class="fas fa-graduation-cap"></i> Pro Tips:</h4>
+                    <ul>
+                        <li>Know when to use <code>only()</code> and <code>defer()</code> for partial field loading</li>
+                        <li>Understand the difference between <code>get()</code> and <code>filter()</code></li>
+                        <li>Be prepared to discuss database indexing strategies</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <!-- Slide 6: Lab - Categories and Tags -->
+        <div class="slide" data-slide="6">
+            <div class="slide-header">
+                <div class="slide-number">6</div>
+                <h2 class="slide-title">Lab: Categories & Tags Implementation</h2>
+            </div>
+            <div class="content-section">
+                <h3><i class="fas fa-tasks"></i> Requirements:</h3>
+                <ul class="custom-list">
+                    <li>Add <span class="highlight">Category</span> model with name and description</li>
+                    <li>Add <span class="highlight">Tag</span> model with name (ManyToMany to Post)</li>
+                    <li>Update Post model to include category ForeignKey</li>
+                    <li>Implement filtering by category and tag in views</li>
+                    <li>Display category/tag navigation in templates</li>
+                </ul>
+                <h3><i class="fas fa-code"></i> Model Implementation:</h3>
+                <div class="code-container">
+                    <pre class="code-block" id="code8"># models.py
+class Category(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    description = models.TextField(blank=True)
+
+class Tag(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+
+class Post(models.Model):
+    title = models.CharField(max_length=200)
+    content = models.TextField()
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    tags = models.ManyToManyField(Tag, blank=True)
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)</pre>
+                    <button class="copy-btn" onclick="copyCode('code8')">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+                <div class="code-container">
+                    <pre class="code-block" id="code9"># views.py
+def post_list(request):
+    posts = Post.objects.select_related('category', 'author').prefetch_related('tags')
+    category_id = request.GET.get('category')
+    tag_id = request.GET.get('tag')
+    
+    if category_id:
+        posts = posts.filter(category_id=category_id)
+    if tag_id:
+        posts = posts.filter(tags__id=tag_id)
+    
+    categories = Category.objects.all()
+    tags = Tag.objects.all()
+    return render(request, 'blog/post_list.html', {
+        'posts': posts,
+        'categories': categories,
+        'tags': tags
+    })</pre>
+                    <button class="copy-btn" onclick="copyCode('code9')">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+                <div class="lab-section">
+                    <h3><i class="fas fa-rocket"></i> Lab Steps:</h3>
+                    <ol class="steps-list">
+                        <li>Create <span class="highlight">Category</span> and <span class="highlight">Tag</span> models</li>
+                        <li>Update <span class="highlight">Post</span> model with ForeignKey and ManyToMany fields</li>
+                        <li>Create and run migrations</li>
+                        <li>Update post creation form to include category and tags</li>
+                        <li>Implement filtered post listing view</li>
+                        <li>Create templates with category/tag navigation filters</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+        <!-- Navigation -->
+        <div class="navigation">
+            <button class="nav-btn prev-btn" onclick="changeSlide(-1)" aria-label="Previous slide">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <div class="slide-counter">
+                <span id="currentSlide">1</span> / <span id="totalSlides">6</span>
+            </div>
+            <div style="display: flex; align-items: center;">
+                <button class="nav-btn next-btn" onclick="changeSlide(1)" aria-label="Next slide">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+                <button class="fullscreen-btn" onclick="toggleFullscreen()" aria-label="Toggle fullscreen" id="fullscreenBtn">
+                    <i class="fas fa-expand"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    <script>
+        let currentSlide = 0;
+        const totalSlides = 6;
+        const slideshowContainer = document.getElementById('slideshowContainer');
+        const fullscreenBtn = document.getElementById('fullscreenBtn');
+        let isFullscreen = false;
+        // Update slide counter display
+        function updateSlideCounter() {
+            document.getElementById('currentSlide').textContent = currentSlide === 0 ? 1 : currentSlide;
+            document.getElementById('totalSlides').textContent = totalSlides;
+        }
+        // Update progress bar
+        function updateProgressBar() {
+            const progressBar = document.getElementById('progressBar');
+            const progress = currentSlide === 0 ? 0 : (currentSlide / totalSlides) * 100;
+            progressBar.style.width = `${progress}%`;
+        }
+        // Go to specific slide
+        function goToSlide(slideIndex) {
+            // Hide all slides
+            document.querySelectorAll('.slide').forEach(slide => {
+                slide.classList.remove('active');
+            });
+            // Show the requested slide
+            currentSlide = slideIndex;
+            document.querySelector(`.slide[data-slide="${currentSlide}"]`).classList.add('active');
+            // Update UI
+            updateSlideCounter();
+            updateProgressBar();
+            // Update navigation buttons
+            document.querySelector('.prev-btn').disabled = currentSlide === 0;
+            document.querySelector('.next-btn').disabled = currentSlide === totalSlides;
+        }
+        // Change slide (next/prev)
+        function changeSlide(direction) {
+            let newSlide = currentSlide + direction;
+            // Ensure we stay within bounds
+            if (newSlide < 0) newSlide = 0;
+            if (newSlide > totalSlides) newSlide = totalSlides;
+            goToSlide(newSlide);
+        }
+        // Copy code to clipboard
+        function copyCode(codeId) {
+            const codeElement = document.getElementById(codeId);
+            const textToCopy = codeElement.textContent;
+            // Create temporary textarea element
+            const textarea = document.createElement('textarea');
+            textarea.value = textToCopy;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            // Update button to show copied state
+            const copyBtn = codeElement.parentElement.querySelector('.copy-btn');
+            copyBtn.innerHTML = '<i class="fas fa-check"></i>';
+            copyBtn.classList.add('copied');
+            // Revert back after 2 seconds
+            setTimeout(() => {
+                copyBtn.innerHTML = '<i class="fas fa-copy"></i>';
+                copyBtn.classList.remove('copied');
+            }, 2000);
+        }
+        // Toggle fullscreen mode - FIXED VERSION
+        function toggleFullscreen() {
+            if (!document.fullscreenElement && 
+                !document.mozFullScreenElement && 
+                !document.webkitFullscreenElement && 
+                !document.msFullscreenElement) {
+                // Enter fullscreen
+                if (slideshowContainer.requestFullscreen) {
+                    slideshowContainer.requestFullscreen();
+                } else if (slideshowContainer.msRequestFullscreen) {
+                    slideshowContainer.msRequestFullscreen();
+                } else if (slideshowContainer.mozRequestFullScreen) {
+                    slideshowContainer.mozRequestFullScreen();
+                } else if (slideshowContainer.webkitRequestFullscreen) {
+                    slideshowContainer.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+                }
+                isFullscreen = true;
+                fullscreenBtn.innerHTML = '<i class="fas fa-compress"></i>';
+            } else {
+                // Exit fullscreen
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                } else if (document.mozCancelFullScreen) {
+                    document.mozCancelFullScreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                }
+                isFullscreen = false;
+                fullscreenBtn.innerHTML = '<i class="fas fa-expand"></i>';
+            }
+        }
+        // Handle fullscreen change events
+        document.addEventListener('fullscreenchange', handleFullscreenChange);
+        document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+        document.addEventListener('mozfullscreenchange', handleFullscreenChange);
+        document.addEventListener('MSFullscreenChange', handleFullscreenChange);
+        function handleFullscreenChange() {
+            if (!document.fullscreenElement && 
+                !document.mozFullScreenElement && 
+                !document.webkitFullscreenElement && 
+                !document.msFullscreenElement) {
+                isFullscreen = false;
+                fullscreenBtn.innerHTML = '<i class="fas fa-expand"></i>';
+            } else {
+                isFullscreen = true;
+                fullscreenBtn.innerHTML = '<i class="fas fa-compress"></i>';
+            }
+        }
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                changeSlide(1);
+            } else if (e.key === 'ArrowLeft') {
+                changeSlide(-1);
+            } else if (e.key === 'f' || e.key === 'F') {
+                toggleFullscreen();
+            } else if (e.key === 'Escape') {
+                if (document.fullscreenElement || 
+                    document.mozFullScreenElement || 
+                    document.webkitFullscreenElement || 
+                    document.msFullscreenElement) {
+                    toggleFullscreen();
+                }
+            }
+        });
+        // Initialize slideshow
+        window.addEventListener('load', () => {
+            updateSlideCounter();
+            updateProgressBar();
+            document.querySelector('.prev-btn').disabled = true;
+        });
+    </script>
+</body>
+</html>
+
