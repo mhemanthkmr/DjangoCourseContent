@@ -1,0 +1,1209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Week 8: Advanced Models & Database Queries</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif;
+        }
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #7209b7;
+            --accent: #4cc9f0;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --light-gray: #e9ecef;
+            --success: #4ade80;
+            --warning: #facc15;
+            --card-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            --border-radius: 16px;
+            --transition: all 0.3s ease;
+        }
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4edf9 100%);
+            color: var(--dark);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .slideshow-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            background: white;
+            height: 85vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .slide {
+            display: none;
+            padding: 50px;
+            flex: 1;
+            overflow-y: auto;
+        }
+        .slide.active {
+            display: block;
+            animation: slideIn 0.5s ease-out;
+        }
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .slide-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 40px;
+            padding-bottom: 25px;
+            border-bottom: 2px solid var(--light-gray);
+        }
+        .slide-number {
+            background: var(--primary);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-right: 20px;
+            flex-shrink: 0;
+        }
+        .slide-title {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin: 0;
+        }
+        .content-section {
+            margin-bottom: 30px;
+        }
+        .content-section h3 {
+            font-size: 1.6rem;
+            margin-bottom: 20px;
+            color: var(--primary-dark);
+            display: flex;
+            align-items: center;
+        }
+        .content-section h3 i {
+            margin-right: 12px;
+            color: var(--primary);
+        }
+        .content-section p {
+            margin-bottom: 15px;
+            color: var(--dark);
+            font-size: 1.15rem;
+            line-height: 1.7;
+        }
+        .code-container {
+            position: relative;
+            margin: 25px 0;
+        }
+        .code-block {
+            background: #1e1e2e;
+            color: #e0e0e0;
+            padding: 25px;
+            border-radius: 14px;
+            font-family: 'Fira Code', 'Consolas', monospace;
+            font-size: 1.1rem;
+            overflow-x: auto;
+            line-height: 1.6;
+            border-left: 4px solid var(--accent);
+            margin: 0;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 14px;
+            transition: var(--transition);
+            z-index: 10;
+        }
+        .copy-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+        .copy-btn.copied {
+            background: var(--success);
+        }
+        .highlight {
+            background: rgba(67, 97, 238, 0.15);
+            color: var(--primary-dark);
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-weight: 600;
+            font-family: 'Fira Code', monospace;
+            font-size: 1.05rem;
+        }
+        .relationship-diagram {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 35px 0;
+            flex-wrap: wrap;
+            gap: 30px;
+        }
+        .entity {
+            background: white;
+            border: 2px solid var(--primary);
+            border-radius: 14px;
+            padding: 25px;
+            min-width: 220px;
+            text-align: center;
+            box-shadow: 0 6px 16px rgba(67, 97, 238, 0.15);
+        }
+        .entity h4 {
+            color: var(--primary-dark);
+            margin-bottom: 18px;
+            font-size: 1.4rem;
+            font-weight: 600;
+        }
+        .entity p {
+            color: var(--gray);
+            font-size: 1.05rem;
+            margin: 6px 0;
+            line-height: 1.5;
+        }
+        .arrow {
+            font-size: 2.5rem;
+            color: var(--success);
+            margin: 0 25px;
+        }
+        .lab-section {
+            background: linear-gradient(135deg, rgba(67, 97, 238, 0.1) 0%, rgba(114, 9, 183, 0.1) 100%);
+            border-radius: 14px;
+            padding: 30px;
+            margin-top: 30px;
+            border-left: 4px solid var(--secondary);
+        }
+        .lab-section h3 {
+            color: var(--secondary);
+            margin-bottom: 20px;
+            font-size: 1.6rem;
+        }
+        .steps-list {
+            padding-left: 30px;
+        }
+        .steps-list li {
+            margin-bottom: 12px;
+            color: var(--dark);
+            font-size: 1.15rem;
+            line-height: 1.6;
+        }
+        /* Custom list styling with single blue dot */
+        .custom-list {
+            padding-left: 20px;
+            margin: 20px 0;
+            list-style: none;
+        }
+        .custom-list li {
+            position: relative;
+            padding-left: 25px;
+            margin-bottom: 12px;
+            color: var(--dark);
+            font-size: 1.15rem;
+            line-height: 1.6;
+        }
+        .custom-list li:before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: var(--primary);
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        /* Important Notes section */
+        .important-notes {
+            background: #f8f9fa;
+            border-left: 4px solid var(--warning);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 25px 0;
+        }
+        .important-notes h4 {
+            color: var(--warning);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            font-size: 1.3rem;
+        }
+        .important-notes h4 i {
+            margin-right: 10px;
+        }
+        .important-notes ul {
+            padding-left: 20px;
+            margin: 10px 0;
+        }
+        .important-notes li {
+            position: relative;
+            padding-left: 25px;
+            margin-bottom: 10px;
+            color: var(--dark);
+            font-size: 1.1rem;
+            line-height: 1.6;
+            list-style: none;
+        }
+        .important-notes li:before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: var(--warning);
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        .important-notes li code {
+            background: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.95rem;
+        }
+        /* Navigation */
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 25px 50px;
+            background: var(--light);
+            border-top: 1px solid var(--light-gray);
+        }
+        .nav-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 22px;
+            transition: var(--transition);
+            box-shadow: 0 6px 15px rgba(67, 97, 238, 0.4);
+        }
+        .nav-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-3px);
+        }
+        .nav-btn:disabled {
+            background: var(--light-gray);
+            color: var(--gray);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        .slide-counter {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--gray);
+        }
+        /* Fullscreen button */
+        .fullscreen-btn {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 20px;
+            transition: var(--transition);
+            box-shadow: 0 6px 15px rgba(114, 9, 183, 0.4);
+            margin-left: 15px;
+        }
+        .fullscreen-btn:hover {
+            background: #5a0799;
+            transform: translateY(-3px);
+        }
+        /* Title slide */
+        .title-slide {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            height: 100%;
+            padding: 60px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+        }
+        .title-slide h1 {
+            font-size: 3.5rem;
+            margin-bottom: 25px;
+            font-weight: 800;
+            text-shadow: 0 3px 15px rgba(0,0,0,0.25);
+        }
+        .title-slide .subtitle {
+            font-size: 1.8rem;
+            font-weight: 300;
+            max-width: 900px;
+            line-height: 1.6;
+            opacity: 0.95;
+        }
+        /* Progress bar */
+        .progress-container {
+            height: 8px;
+            background: var(--light-gray);
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 10;
+        }
+        .progress-bar {
+            height: 100%;
+            background: var(--primary);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+        /* Fullscreen styles */
+        .fullscreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1000;
+            border-radius: 0;
+            margin: 0;
+            padding: 0;
+            box-shadow: none;
+        }
+        .fullscreen .navigation {
+            padding: 25px 40px;
+        }
+        /* Responsive design */
+        @media (max-width: 1200px) {
+            .slideshow-container {
+                max-width: 1000px;
+            }
+            .slide {
+                padding: 40px;
+            }
+            .slide-title {
+                font-size: 2.0rem;
+            }
+            .title-slide h1 {
+                font-size: 3.0rem;
+            }
+            .title-slide .subtitle {
+                font-size: 1.6rem;
+            }
+        }
+        @media (max-width: 992px) {
+            .slideshow-container {
+                max-width: 800px;
+                height: 88vh;
+            }
+            .slide {
+                padding: 35px;
+            }
+            .slide-header {
+                margin-bottom: 30px;
+            }
+            .slide-title {
+                font-size: 1.8rem;
+            }
+            .title-slide h1 {
+                font-size: 2.6rem;
+            }
+            .title-slide .subtitle {
+                font-size: 1.4rem;
+            }
+            .code-block {
+                font-size: 1.0rem;
+                padding: 20px;
+            }
+            .copy-btn {
+                top: 12px;
+                right: 12px;
+                width: 32px;
+                height: 32px;
+                font-size: 12px;
+            }
+            .important-notes {
+                padding: 15px;
+            }
+            .important-notes h4 {
+                font-size: 1.2rem;
+            }
+            .important-notes li {
+                font-size: 1.0rem;
+            }
+        }
+        @media (max-width: 768px) {
+            .slideshow-container {
+                height: 90vh;
+                margin: 10px;
+            }
+            .slide {
+                padding: 25px;
+            }
+            .slide-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .slide-number {
+                margin-bottom: 15px;
+                width: 40px;
+                height: 40px;
+                font-size: 1rem;
+            }
+            .slide-title {
+                font-size: 1.5rem;
+            }
+            .title-slide h1 {
+                font-size: 2.2rem;
+            }
+            .title-slide .subtitle {
+                font-size: 1.2rem;
+            }
+            .navigation {
+                padding: 20px 30px;
+            }
+            .nav-btn, .fullscreen-btn {
+                width: 45px;
+                height: 45px;
+                font-size: 18px;
+            }
+            .slide-counter {
+                font-size: 1.1rem;
+            }
+            .code-block {
+                padding: 18px;
+            }
+            .copy-btn {
+                top: 10px;
+                right: 10px;
+                width: 30px;
+                height: 30px;
+                font-size: 11px;
+            }
+            .custom-list li {
+                font-size: 1.1rem;
+            }
+        }
+        @media (max-width: 480px) {
+            .title-slide h1 {
+                font-size: 1.9rem;
+            }
+            .title-slide .subtitle {
+                font-size: 1.05rem;
+            }
+            .slide-title {
+                font-size: 1.4rem;
+            }
+            .code-block {
+                padding: 15px;
+                font-size: 0.9rem;
+            }
+            .content-section h3 {
+                font-size: 1.3rem;
+            }
+            .navigation {
+                flex-direction: column;
+                gap: 15px;
+            }
+            .slide-counter {
+                order: -1;
+            }
+            .copy-btn {
+                top: 8px;
+                right: 8px;
+                width: 28px;
+                height: 28px;
+                font-size: 10px;
+            }
+            .important-notes {
+                padding: 12px;
+            }
+            .important-notes h4 {
+                font-size: 1.1rem;
+            }
+            .important-notes li {
+                font-size: 0.95rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="slideshow-container" id="slideshowContainer">
+    <!-- Progress bar -->
+    <div class="progress-container">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+    <!-- Title Slide -->
+    <div class="slide active" data-slide="0">
+        <div class="title-slide">
+            <h1>Week 9: Static & Media Files</h1>
+            <div class="subtitle">Managing CSS, JS, Images, and User-Uploaded Content in Django</div>
+        </div>
+    </div>
+    <!-- Slide 1: Static vs Media Files -->
+    <div class="slide" data-slide="1">
+        <div class="slide-header">
+            <div class="slide-number">1</div>
+            <h2 class="slide-title">Static vs Media Files</h2>
+        </div>
+        <div class="content-section">
+            <p>Understanding the fundamental difference between static and media files in Django applications.</p>
+            <h3><i class="fas fa-file-alt"></i> Static Files:</h3>
+            <ul class="custom-list">
+                <li>CSS, JavaScript, images, fonts used by your application</li>
+                <li>Same for all users (site-wide assets)</li>
+                <li>Version-controlled with your code</li>
+                <li>Deployed with your application</li>
+            </ul>
+            <h3><i class="fas fa-image"></i> Media Files:</h3>
+            <ul class="custom-list">
+                <li>User-uploaded content (profile pictures, blog images, documents)</li>
+                <li>Unique per user/content</li>
+                <li>Stored separately from code</li>
+                <li>Require security considerations</li>
+            </ul>
+            <div class="important-notes">
+                <h4><i class="fas fa-exclamation-triangle"></i> Key Distinction:</h4>
+                <ul>
+                    <li>Static files = application assets (unchanging)</li>
+                    <li>Media files = user-generated content (dynamic)</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <!-- Slide 2: Static Files Configuration -->
+    <div class="slide" data-slide="2">
+        <div class="slide-header">
+            <div class="slide-number">2</div>
+            <h2 class="slide-title">Static Files Configuration</h2>
+        </div>
+        <div class="content-section">
+            <p>Proper setup for serving static files during development and production deployment.</p>
+            <h3><i class="fas fa-cog"></i> Settings Configuration:</h3>
+            <div class="code-container">
+                <pre class="code-block" id="code1"># settings.py
+import os
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Static files configuration
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # For production
+
+# Static files directories
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+    os.path.join(BASE_DIR, 'assets'),
+]
+
+# Apps with static files
+STATICFILES_FINDERS = [
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+]</pre>
+                <button class="copy-btn" onclick="copyCode('code1')">
+                    <i class="fas fa-copy"></i>
+                </button>
+            </div>
+            <h3><i class="fas fa-folder"></i> Directory Structure:</h3>
+            <div class="code-container">
+                <pre class="code-block" id="code2">myproject/
+├── myapp/
+│   ├── static/
+│   │   └── myapp/
+│   │       ├── css/
+│   │       │   └── style.css
+│   │       ├── js/
+│   │       │   └── script.js
+│   │       └── images/
+│   │           └── logo.png
+├── static/  # Project-level static files
+│   ├── css/
+│   ├── js/
+│   └── images/
+└── manage.py</pre>
+                <button class="copy-btn" onclick="copyCode('code2')">
+                    <i class="fas fa-copy"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    <!-- Slide 3: Serving Static Files -->
+    <div class="slide" data-slide="3">
+        <div class="slide-header">
+            <div class="slide-number">3</div>
+            <h2 class="slide-title">Serving Static Files</h2>
+        </div>
+        <div class="content-section">
+            <p>How Django serves static files in development and production environments.</p>
+            <h3><i class="fas fa-server"></i> Development (DEBUG=True):</h3>
+            <div class="code-container">
+                <pre class="code-block" id="code3"># urls.py (project level)
+from django.conf import settings
+from django.conf.urls.static import static
+from django.urls import path, include
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('', include('myapp.urls')),
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)</pre>
+                <button class="copy-btn" onclick="copyCode('code3')">
+                    <i class="fas fa-copy"></i>
+                </button>
+            </div>
+            <h3><i class="fas fa-code"></i> In Templates:</h3>
+            <div class="code-container">
+                <pre class="code-block" id="code4">{% load static %}
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;link rel=&quot;stylesheet&quot; type=&quot;text/css&quot; href=&quot;{% static 'css/style.css' %}&quot;&gt;
+    &lt;script src=&quot;{% static 'js/script.js' %}&quot;&gt;&lt;/script&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;img src=&quot;{% static 'images/logo.png' %}&quot; alt=&quot;Logo&quot;&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre>
+                <button class="copy-btn" onclick="copyCode('code4')">
+                    <i class="fas fa-copy"></i>
+                </button>
+            </div>
+            <h3><i class="fas fa-cloud"></i> Production:</h3>
+            <ul class="custom-list">
+                <li>Run <span class="highlight">python manage.py collectstatic</span></li>
+                <li>Configure web server (Nginx, Apache) to serve static files</li>
+                <li>Use CDN for better performance</li>
+            </ul>
+        </div>
+    </div>
+    <!-- Slide 4: Media Files Configuration -->
+    <div class="slide" data-slide="4">
+        <div class="slide-header">
+            <div class="slide-number">4</div>
+            <h2 class="slide-title">Media Files Configuration</h2>
+        </div>
+        <div class="content-section">
+            <p>Setting up user-uploaded media files with proper security and organization.</p>
+            <h3><i class="fas fa-cogs"></i> Settings Configuration:</h3>
+            <div class="code-container">
+                <pre class="code-block" id="code5"># settings.py
+import os
+from pathlib import Path
+
+# Media files configuration
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# Security considerations
+FILE_UPLOAD_MAX_MEMORY_SIZE = 5242880  # 5MB
+DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880  # 5MB
+
+# Allowed file types (optional)
+ALLOWED_FILE_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.gif']</pre>
+                <button class="copy-btn" onclick="copyCode('code5')">
+                    <i class="fas fa-copy"></i>
+                </button>
+            </div>
+            <h3><i class="fas fa-file-upload"></i> URL Configuration:</h3>
+            <div class="code-container">
+                <pre class="code-block" id="code6"># urls.py (project level)
+from django.conf import settings
+from django.conf.urls.static import static
+from django.urls import path, include
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('', include('myapp.urls')),
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)</pre>
+                <button class="copy-btn" onclick="copyCode('code6')">
+                    <i class="fas fa-copy"></i>
+                </button>
+            </div>
+            <div class="important-notes">
+                <h4><i class="fas fa-shield-alt"></i> Security Warning:</h4>
+                <ul>
+                    <li>Never serve media files in production using Django</li>
+                    <li>Use separate storage (AWS S3, etc.) for production</li>
+                    <li>Validate file types and sizes</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <!-- Slide 5: File Upload in Models -->
+    <div class="slide" data-slide="5">
+        <div class="slide-header">
+            <div class="slide-number">5</div>
+            <h2 class="slide-title">File Upload in Models</h2>
+        </div>
+        <div class="content-section">
+            <p>Implementing file upload functionality in Django models with proper validation and storage.</p>
+            <h3><i class="fas fa-database"></i> Model with File Fields:</h3>
+            <div class="code-container">
+                <pre class="code-block" id="code7"># models.py
+from django.db import models
+from django.contrib.auth.models import User
+import os
+
+def upload_to(instance, filename):
+    """Generate upload path for user-uploaded files"""
+    return f'blog_images/{instance.author.username}/{filename}'
+
+class Post(models.Model):
+    title = models.CharField(max_length=200)
+    content = models.TextField()
+    cover_image = models.ImageField(
+        upload_to=upload_to,
+        blank=True,
+        null=True,
+        help_text="Upload a cover image for this post"
+    )
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    def delete(self, *args, **kwargs):
+        """Delete file when model instance is deleted"""
+        if self.cover_image:
+            if os.path.isfile(self.cover_image.path):
+                os.remove(self.cover_image.path)
+        super().delete(*args, **kwargs)</pre>
+                <button class="copy-btn" onclick="copyCode('code7')">
+                    <i class="fas fa-copy"></i>
+                </button>
+            </div>
+            <h3><i class="fas fa-check-circle"></i> File Validation:</h3>
+            <div class="code-container">
+                <pre class="code-block" id="code8">from django.core.validators import FileExtensionValidator
+from django.core.exceptions import ValidationError
+
+def validate_image_size(value):
+    """Validate file size (max 5MB)"""
+    filesize = value.size
+    if filesize > 5242880:  # 5MB
+        raise ValidationError("Max file size is 5MB")
+
+class Post(models.Model):
+    cover_image = models.ImageField(
+        upload_to=upload_to,
+        blank=True,
+        null=True,
+        validators=[
+            FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png']),
+            validate_image_size
+        ]
+    )</pre>
+                <button class="copy-btn" onclick="copyCode('code8')">
+                    <i class="fas fa-copy"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    <!-- Slide 6: File Upload Forms and Views -->
+    <div class="slide" data-slide="6">
+        <div class="slide-header">
+            <div class="slide-number">6</div>
+            <h2 class="slide-title">File Upload Forms & Views</h2>
+        </div>
+        <div class="content-section">
+            <p>Creating forms and views that handle file uploads with proper validation and error handling.</p>
+            <h3><i class="fas fa-edit"></i> Model Form with File Upload:</h3>
+            <div class="code-container">
+                <pre class="code-block" id="code9"># forms.py
+from django import forms
+from .models import Post
+
+class PostForm(forms.ModelForm):
+    class Meta:
+        model = Post
+        fields = ['title', 'content', 'cover_image']
+        widgets = {
+            'title': forms.TextInput(attrs={'class': 'form-control'}),
+            'content': forms.Textarea(attrs={'class': 'form-control', 'rows': 5}),
+            'cover_image': forms.FileInput(attrs={'class': 'form-control'})
+        }</pre>
+                <button class="copy-btn" onclick="copyCode('code9')">
+                    <i class="fas fa-copy"></i>
+                </button>
+            </div>
+            <h3><i class="fas fa-code"></i> View Handling File Upload:</h3>
+            <div class="code-container">
+                <pre class="code-block" id="code10"># views.py
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .forms import PostForm
+
+def create_post(request):
+    if request.method == 'POST':
+        form = PostForm(request.POST, request.FILES)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.author = request.user
+            post.save()
+            messages.success(request, 'Post created successfully!')
+            return redirect('post_detail', pk=post.pk)
+    else:
+        form = PostForm()
+    
+    return render(request, 'blog/create_post.html', {'form': form})</pre>
+                <button class="copy-btn" onclick="copyCode('code10')">
+                    <i class="fas fa-copy"></i>
+                </button>
+            </div>
+            <h3><i class="fas fa-file-code"></i> Template with File Upload:</h3>
+            <div class="code-container">
+                <pre class="code-block" id="code11">
+{% load static %}
+&lt;form method=&quot;post&quot; enctype=&quot;multipart/form-data&quot;&gt;
+    {% csrf_token %}
+    {{ form.as_p }}
+    &lt;button type=&quot;submit&quot;&gt;Create Post&lt;/button&gt;
+&lt;/form&gt;
+
+&lt;!-- Display uploaded image --&gt;
+    &lt;img src=&quot;{{ post.cover_image.url }}&quot; alt=&quot;Cover Image&quot; class=&quot;img-fluid&quot;&gt;
+</pre>
+                <button class="copy-btn" onclick="copyCode('code11')">
+                    <i class="fas fa-copy"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    <!-- Slide 7: Production Considerations -->
+    <div class="slide" data-slide="7">
+        <div class="slide-header">
+            <div class="slide-number">7</div>
+            <h2 class="slide-title">Production Considerations</h2>
+        </div>
+        <div class="content-section">
+            <p>Best practices for handling static and media files in production environments.</p>
+            <h3><i class="fas fa-cloud"></i> Cloud Storage (AWS S3):</h3>
+            <div class="code-container">
+                <pre class="code-block" id="code12"># settings.py (production)
+import os
+
+# AWS S3 Configuration
+AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
+AWS_STORAGE_BUCKET_NAME = 'your-bucket-name'
+AWS_S3_REGION_NAME = 'us-east-1'
+AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
+
+# Static files on S3
+STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+
+# Media files on S3
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+AWS_DEFAULT_ACL = 'public-read'</pre>
+                <button class="copy-btn" onclick="copyCode('code12')">
+                    <i class="fas fa-copy"></i>
+                </button>
+            </div>
+            <h3><i class="fas fa-bolt"></i> Performance Optimization:</h3>
+            <ul class="custom-list">
+                <li>Use CDN for static files (CloudFront, Cloudflare)</li>
+                <li>Implement image optimization and compression</li>
+                <li>Set proper cache headers</li>
+                <li>Use WebP format for images</li>
+                <li>Lazy loading for images</li>
+            </ul>
+            <div class="important-notes">
+                <h4><i class="fas fa-lock"></i> Security Best Practices:</h4>
+                <ul>
+                    <li>Validate file types and sizes</li>
+                    <li>Scan uploaded files for malware</li>
+                    <li>Store files in private buckets when needed</li>
+                    <li>Use signed URLs for private content</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <!-- Slide 8: Interview Questions -->
+    <div class="slide" data-slide="8">
+        <div class="slide-header">
+            <div class="slide-number">8</div>
+            <h2 class="slide-title">Common Interview Questions</h2>
+        </div>
+        <div class="content-section">
+            <h3><i class="fas fa-question-circle"></i> Core Concepts:</h3>
+            <ul class="custom-list">
+                <li>What's the difference between <span class="highlight">STATIC_URL</span> and <span class="highlight">MEDIA_URL</span>?</li>
+                <li>How do you handle file uploads in Django forms?</li>
+                <li>What is the purpose of <span class="highlight">enctype="multipart/form-data"</span>?</li>
+                <li>How do you validate uploaded files?</li>
+            </ul>
+            <h3><i class="fas fa-lightbulb"></i> Scenario-Based:</h3>
+            <ul class="custom-list">
+                <li>How would you implement image upload with size and type validation?</li>
+                <li>What's your approach to serving static files in production?</li>
+                <li>How do you handle file deletion when model instances are deleted?</li>
+                <li>What security measures would you implement for file uploads?</li>
+            </ul>
+            <div class="important-notes">
+                <h4><i class="fas fa-graduation-cap"></i> Pro Tips:</h4>
+                <ul>
+                    <li>Always use <code>request.FILES</code> in form processing</li>
+                    <li>Implement proper error handling for file operations</li>
+                    <li>Consider using <code>Pillow</code> for image processing</li>
+                    <li>Know how to use <code>django-storages</code> for cloud storage</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <!-- Slide 9: Lab - Cover Images for Blog Posts -->
+    <div class="slide" data-slide="9">
+        <div class="slide-header">
+            <div class="slide-number">9</div>
+            <h2 class="slide-title">Lab: Cover Images for Blog Posts</h2>
+        </div>
+        <div class="content-section">
+            <h3><i class="fas fa-tasks"></i> Requirements:</h3>
+            <ul class="custom-list">
+                <li>Add <span class="highlight">cover_image</span> field to Post model</li>
+                <li>Update post creation form to include image upload</li>
+                <li>Implement file validation (size, type)</li>
+                <li>Display cover images in post templates</li>
+                <li>Configure static and media file settings</li>
+            </ul>
+            <h3><i class="fas fa-code"></i> Implementation Steps:</h3>
+            <div class="code-container">
+                <pre class="code-block" id="code13"># models.py - Add to Post model
+def post_image_path(instance, filename):
+    # Upload to media/blog_images/username/filename
+    return f'blog_images/{instance.author.username}/{filename}'
+
+cover_image = models.ImageField(
+    upload_to=post_image_path,
+    blank=True,
+    null=True,
+    validators=[
+        FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png']),
+    ]
+)</pre>
+                <button class="copy-btn" onclick="copyCode('code13')">
+                    <i class="fas fa-copy"></i>
+                </button>
+            </div>
+            <div class="code-container">
+                <pre class="code-block" id="code14"># settings.py - Add media configuration
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# Add to INSTALLED_APPS
+INSTALLED_APPS = [
+    # ... other apps
+    'django.contrib.staticfiles',
+]
+
+# Add to urls.py (project level)
+from django.conf import settings
+from django.conf.urls.static import static
+
+urlpatterns = [
+    # ... your URLs
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)</pre>
+                <button class="copy-btn" onclick="copyCode('code14')">
+                    <i class="fas fa-copy"></i>
+                </button>
+            </div>
+            <div class="lab-section">
+                <h3><i class="fas fa-rocket"></i> Lab Steps:</h3>
+                <ol class="steps-list">
+                    <li>Add <span class="highlight">ImageField</span> to Post model with validation</li>
+                    <li>Create and run migrations</li>
+                    <li>Update PostForm to include file upload field</li>
+                    <li>Update post creation view to handle <span class="highlight">request.FILES</span></li>
+                    <li>Update template to include <span class="highlight">enctype="multipart/form-data"</span></li>
+                    <li>Display cover images in post detail/list templates</li>
+                    <li>Test file upload functionality</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <!-- Navigation -->
+    <div class="navigation">
+        <button class="nav-btn prev-btn" onclick="changeSlide(-1)" aria-label="Previous slide">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+        <div class="slide-counter">
+            <span id="currentSlide">1</span> / <span id="totalSlides">9</span>
+        </div>
+        <div style="display: flex; align-items: center;">
+            <button class="nav-btn next-btn" onclick="changeSlide(1)" aria-label="Next slide">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+            <button class="fullscreen-btn" onclick="toggleFullscreen()" aria-label="Toggle fullscreen" id="fullscreenBtn">
+                <i class="fas fa-expand"></i>
+            </button>
+        </div>
+    </div>
+</div>
+    <script>
+        let currentSlide = 0;
+        const totalSlides = 9;
+        const slideshowContainer = document.getElementById('slideshowContainer');
+        const fullscreenBtn = document.getElementById('fullscreenBtn');
+        let isFullscreen = false;
+        // Update slide counter display
+        function updateSlideCounter() {
+            document.getElementById('currentSlide').textContent = currentSlide === 0 ? 1 : currentSlide;
+            document.getElementById('totalSlides').textContent = totalSlides;
+        }
+        // Update progress bar
+        function updateProgressBar() {
+            const progressBar = document.getElementById('progressBar');
+            const progress = currentSlide === 0 ? 0 : (currentSlide / totalSlides) * 100;
+            progressBar.style.width = `${progress}%`;
+        }
+        // Go to specific slide
+        function goToSlide(slideIndex) {
+            // Hide all slides
+            document.querySelectorAll('.slide').forEach(slide => {
+                slide.classList.remove('active');
+            });
+            // Show the requested slide
+            currentSlide = slideIndex;
+            document.querySelector(`.slide[data-slide="${currentSlide}"]`).classList.add('active');
+            // Update UI
+            updateSlideCounter();
+            updateProgressBar();
+            // Update navigation buttons
+            document.querySelector('.prev-btn').disabled = currentSlide === 0;
+            document.querySelector('.next-btn').disabled = currentSlide === totalSlides;
+        }
+        // Change slide (next/prev)
+        function changeSlide(direction) {
+            let newSlide = currentSlide + direction;
+            // Ensure we stay within bounds
+            if (newSlide < 0) newSlide = 0;
+            if (newSlide > totalSlides) newSlide = totalSlides;
+            goToSlide(newSlide);
+        }
+        // Copy code to clipboard
+        function copyCode(codeId) {
+            const codeElement = document.getElementById(codeId);
+            const textToCopy = codeElement.textContent;
+            // Create temporary textarea element
+            const textarea = document.createElement('textarea');
+            textarea.value = textToCopy;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            // Update button to show copied state
+            const copyBtn = codeElement.parentElement.querySelector('.copy-btn');
+            copyBtn.innerHTML = '<i class="fas fa-check"></i>';
+            copyBtn.classList.add('copied');
+            // Revert back after 2 seconds
+            setTimeout(() => {
+                copyBtn.innerHTML = '<i class="fas fa-copy"></i>';
+                copyBtn.classList.remove('copied');
+            }, 2000);
+        }
+        // Toggle fullscreen mode - FIXED VERSION
+        function toggleFullscreen() {
+            if (!document.fullscreenElement && 
+                !document.mozFullScreenElement && 
+                !document.webkitFullscreenElement && 
+                !document.msFullscreenElement) {
+                // Enter fullscreen
+                if (slideshowContainer.requestFullscreen) {
+                    slideshowContainer.requestFullscreen();
+                } else if (slideshowContainer.msRequestFullscreen) {
+                    slideshowContainer.msRequestFullscreen();
+                } else if (slideshowContainer.mozRequestFullScreen) {
+                    slideshowContainer.mozRequestFullScreen();
+                } else if (slideshowContainer.webkitRequestFullscreen) {
+                    slideshowContainer.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+                }
+                isFullscreen = true;
+                fullscreenBtn.innerHTML = '<i class="fas fa-compress"></i>';
+            } else {
+                // Exit fullscreen
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                } else if (document.mozCancelFullScreen) {
+                    document.mozCancelFullScreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                }
+                isFullscreen = false;
+                fullscreenBtn.innerHTML = '<i class="fas fa-expand"></i>';
+            }
+        }
+        // Handle fullscreen change events
+        document.addEventListener('fullscreenchange', handleFullscreenChange);
+        document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+        document.addEventListener('mozfullscreenchange', handleFullscreenChange);
+        document.addEventListener('MSFullscreenChange', handleFullscreenChange);
+        function handleFullscreenChange() {
+            if (!document.fullscreenElement && 
+                !document.mozFullScreenElement && 
+                !document.webkitFullscreenElement && 
+                !document.msFullscreenElement) {
+                isFullscreen = false;
+                fullscreenBtn.innerHTML = '<i class="fas fa-expand"></i>';
+            } else {
+                isFullscreen = true;
+                fullscreenBtn.innerHTML = '<i class="fas fa-compress"></i>';
+            }
+        }
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                changeSlide(1);
+            } else if (e.key === 'ArrowLeft') {
+                changeSlide(-1);
+            } else if (e.key === 'f' || e.key === 'F') {
+                toggleFullscreen();
+            } else if (e.key === 'Escape') {
+                if (document.fullscreenElement || 
+                    document.mozFullScreenElement || 
+                    document.webkitFullscreenElement || 
+                    document.msFullscreenElement) {
+                    toggleFullscreen();
+                }
+            }
+        });
+        // Initialize slideshow
+        window.addEventListener('load', () => {
+            updateSlideCounter();
+            updateProgressBar();
+            document.querySelector('.prev-btn').disabled = true;
+        });
+    </script>
+</body>
+</html>
+
